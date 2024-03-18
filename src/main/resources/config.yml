@@ -1,0 +1,57 @@
+update-notification: true
+debug: false
+
+language: ENGLISH # ENGLISH or RUSSIAN
+database-settings:
+  storage: SQLite # SQLite or MYSQL
+  host: localhost
+  base: lightcutter
+  user: admin
+  password: admin
+  pool-size: 2
+
+woodcutter-settings:
+  # REGION or WORLD
+  mode: REGION
+  animation: true
+  # VAULT, PLAYERPOINTS
+  economy: VAULT
+  economy-format: "#.#"
+  # If not the player has lightcutter.modes.bypass permissions
+  breaking-in-modes: true
+  allow-drop: true
+  disabled-worlds:
+    - test
+
+# For WORLD Mode
+# Without animations
+world-settings:
+  # CHAT or ACTIONBAR
+  messages-type: CHAT
+  # if you specified, for example, 5-10, then the number will be randomized.
+  # If 5, then the player will be charged a value equal to 5.
+  # If you specify 5.05, then 5.05
+  costs:
+    oak_log: 1
+    spruce_log: 2
+    birch_log: 3-5 # Randomized
+    jungle_log: 4
+    acacia_log: 5-10 # Randomized
+    dark_log: 6
+
+# For REGION Mode
+region-settings:
+  # CHAT or ACTIONBAR
+  messages-type: ACTIONBAR
+  regeneration:
+    # If 0 - disabled
+    # If the value is less than 2, problems may occur
+    seconds: 5
+    particle:
+      enable: true
+      type: EXPLOSION_NORMAL # https://mcreator.net/wiki/particles-ids
+      count: 4
+    sound:
+      enable: true
+      type: BLOCK_WOOD_PLACE # https://www.planetminecraft.com/blog/all-sound-names---for-playsound/
+      volume: 0.5

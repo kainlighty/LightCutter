@@ -1,0 +1,45 @@
+reload-config: "&aThe configuration has been successfully reloaded"
+
+log-names:
+  oak_log: "&cOak"
+  spruce_log: "&cSpruce"
+  birch_log: "&cBirch"
+  jungle_log: "&cTropical oak"
+  acacia_log: "&cAcacia"
+  dark_log: "&cDark oak"
+  cherry_log: "&cCherry oak"
+  mangrove_log: "&cMangrove oak"
+
+warnings:
+  not-survival: "&cTurn on survival mode to start earning" # set "" for disable
+  is-flying: "&cTurn off the flight to start earning" # set "" for disable
+  is-invisible: "&cDisable invisibility to start earning" # set "" for disable
+  cooldown: "&fYou can't break blocks <value> seconds"
+
+general:
+  stats:
+    not-found: "Statistics for player <username> not found"
+    info: |
+      Player Statistics: <username>
+      Earnings for all time: <earning>
+      Total broken blocks: <broken>
+
+world:
+  earn: "&c ⛃ &fYou earned &a<amount> per <block>"
+
+region:
+  earn: "&c ⛃ &fYou earned &a<amount>"
+  remained: "&c ⛃ &fIt remains to break <value>"
+  info: |
+    &fName: &e<region>
+    &fEarn: &e<earn>
+    &fNeed broken: &e<count>
+    &fCooldown: &e<cooldown>
+  added: "&fRegion &e<region> &fsuccessfully &aadded"
+  removed: "&fRegion &e<region> &fsuccessfully &cremoved"
+  updated: "&fRegion &e<region> &fsuccessfully &cupdated"
+  exists: "&fRegion &e<region> &falready &cexists"
+  not-exists: "&fRegion &e<region> &fdoes &cnot exist"
+
+changed:
+  drop: "&aWood drops updated on <value>"

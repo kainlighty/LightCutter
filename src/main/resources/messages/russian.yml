@@ -1,0 +1,45 @@
+reload-config: "&aКонфигурация успешно перезагружена"
+
+log-names:
+  oak_log: "&cДуб"
+  spruce_log: "&cЕль"
+  birch_log: "&cБерёза"
+  jungle_log: "&cТропический дуб"
+  acacia_log: "&cАкация"
+  dark_log: "&cТёмный дуб"
+  cherry_log: "&cВишнёвый дуб"
+  mangrove_log: "&cМангровый дуб"
+
+warnings:
+  not-survival: "&cВключите режим выживания для зачисления заработка" # установите "" для отключения уведомления
+  is-flying: "&cВыключите полёт для зачисления заработка" # установите "" для отключения уведомления
+  is-invisible: "&cВыключите невидимость для зачисления заработка" # установите "" для отключения уведомления
+  cooldown: "&fВы не можете ломать блоки <value> секунд"
+
+general:
+  stats:
+    not-found: "Статистика для игрока <username> не найден"
+    info: |
+      Статистика игрока: <username>
+      Заработок за всё время: <earning>
+      Всего сломанных блоков: <broken>
+
+world:
+  earn: "&c ⛃ &fЗачислено &a<amount> за <block>"
+
+region:
+  earn: "&c ⛃ &fЗачислено &a<amount>"
+  remained: "&c ⛃ &fОсталось сломать <value> раз"
+  info: |
+    &fИмя: &e<region>
+    &fСтоимость: &e<earn>
+    &fНужно сломать: &e<count>
+    &fЗадержка: &e<cooldown>
+  added: "&fРегион &e<region> &fуспешно &aдобавлен"
+  removed: "&fРегион &e<region> &fуспешно &cудален"
+  updated: "&fРегион &e<region> &fуспешно &cобновлен"
+  exists: "&fРегион &e<region> &fуже &cсуществует"
+  not-exists: "&fРегион &e<region> &fне &cсуществует"
+
+changed:
+  drop: "&aДроп дерева установлен на <value>"
