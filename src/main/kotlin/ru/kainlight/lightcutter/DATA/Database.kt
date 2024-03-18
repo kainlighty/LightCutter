@@ -124,13 +124,19 @@ class Database(
         }
     }
 
-    fun getRegions(): MutableList<String> {
-        val regionNames: MutableList<String> = mutableListOf()
+    fun getRegions(): MutableList<Region> {
+        val regionNames: MutableList<Region> = mutableListOf()
         dataSource?.connection.use { connection ->
-            connection?.prepareStatement("SELECT region_name FROM lightcutter_regions").use { statement ->
+            connection?.prepareStatement("SELECT * FROM lightcutter_regions").use { statement ->
                 statement?.executeQuery().use { resultSet ->
                     while (resultSet?.next() == true) {
-                        regionNames.add(resultSet.getString("region_name"))
+                        val name = resultSet.getString("region_name")
+                        val earn = resultSet.getString("earn")
+                        val needBreak = resultSet.getInt("need_break")
+                        val cooldown = resultSet.getInt("cooldown")
+
+                        val region = Region(name, earn, needBreak, cooldown)
+                        regionNames.add(region)
                     }
                 }
             }

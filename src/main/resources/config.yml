@@ -21,7 +21,7 @@ woodcutter-settings:
   breaking-in-modes: true
   allow-drop: true
   disabled-worlds:
-    - test
+    - world
 
 # For WORLD Mode
 # Without animations

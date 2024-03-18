@@ -25,6 +25,8 @@ class Main : LightPlugin() {
     val playerBlockCount: MutableMap<Player, Int> = mutableMapOf()
     val playerCooldown: MutableMap<UUID, Long> = mutableMapOf()
 
+    private var isDebug: Boolean = false;
+
     override fun onLoad() {
         this.saveDefaultConfig()
         this.configurationVersion = 1.2
@@ -37,6 +39,8 @@ class Main : LightPlugin() {
     override fun onEnable() {
         INSTANCE = this
 
+        this.isDebug = config.getBoolean("debug")
+
         this.bukkitAudiences = BukkitAudiences.create(this)
 
         this.loader()
@@ -44,7 +48,7 @@ class Main : LightPlugin() {
         this.registerCommand("lightcutter", MainCommand(this));
         this.registerListener(BlockListener(this));
 
-        Init.start(this)
+        Init.start(this, true)
     }
 
     override fun onDisable() {
@@ -62,22 +66,18 @@ class Main : LightPlugin() {
 
         economyManager = EconomyManager(this, this.config.getString("woodcutter-settings.economy", "VAULT")!!)
 
-        if (this.getConfig().getString("woodcutter-settings.mode")!!.equalsIgnoreCase("REGION")) {
-            debug("Regions " + database.getRegions() + " successfully loaded");
+        if (this.config.getString("woodcutter-settings.mode")!!.equalsIgnoreCase("REGION")) {
+            debug("Regions " + database.getRegions().map { it.name } + " successfully loaded");
         }
 
-        disabledWorlds.addAll(getConfig().getStringList("woodcutter-settings.disabled-worlds"));
+        disabledWorlds.addAll(config.getStringList("woodcutter-settings.disabled-worlds"));
     }
 
 
     companion object {
         @JvmStatic lateinit var INSTANCE: Main
-        @JvmStatic private var isDebug: Boolean = false;
-
         @JvmStatic
-        fun debug(message: String) {
-            if (isDebug) INSTANCE.logger.warning(message)
-        }
+        fun debug(message: String) { if (INSTANCE.isDebug) INSTANCE.logger.warning(message) }
     }
 }
 

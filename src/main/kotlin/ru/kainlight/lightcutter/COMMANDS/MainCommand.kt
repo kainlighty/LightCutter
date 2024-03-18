@@ -53,7 +53,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 val needBreak = args[3].toInt()
                 val cooldown = args[4].toInt()
 
-                if (! plugin.database.getRegions().contains(regionName)) {
+                if (plugin.database.getRegion(regionName) == null) {
                     val regionAdded = plugin.messageConfig.getConfig().getString("region.added")?.replace("<region>", regionName);
                     val newRegion = Region(regionName, earn, needBreak, cooldown);
                     plugin.database.insertRegion(newRegion);
@@ -67,7 +67,6 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
             }
 
             "update" -> {
-
                 if (args.size <= 4) {
                     sender.getAudience().legacyMessage("&c&l » &fEnter the name, earn, number of broken blocks and cooldown");
                     return true;
@@ -131,10 +130,14 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
             }
 
             "list" -> {
-                //val workingRegionsList: String = String.join(", ", plugin.database.getRegions());
-                val workingRegionsList = plugin.database.getRegions().joinToString(", ")
+                //val workingRegionsList = plugin.database.getRegions().joinToString(", ")
 
-                sender.getAudience().legacyMessage("Regions: \n$workingRegionsList")
+                val builder: StringBuilder = StringBuilder(" Name | Earn | Need break | Cooldown\n")
+                plugin.database.getRegions().forEach {
+                    builder.append("${it.name} | ${it.earn} | ${it.needBreak} | ${it.cooldown}\n")
+                }
+
+                sender.getAudience().legacyMessage(builder.toString())
                 return true;
             }
 
