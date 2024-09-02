@@ -33,14 +33,6 @@ warnings:
   is-invisible: "&cDisable invisibility to start earning" # set "" for disable
   cooldown: "&fYou can't break blocks <value> seconds"
 
-general:
-  stats:
-    not-found: "Statistics for player <username> not found"
-    info: |
-      Player Statistics: <username>
-      Earnings for all time: <earning>
-      Total broken blocks: <broken>
-
 world:
   earn: "&c ⛃ &fYou earned &a<amount> per <block>"
 
