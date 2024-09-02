@@ -43,5 +43,6 @@ bin/
 
 ### My ###
 ./.idea
+.idea/
 ./build
 ./gradle
