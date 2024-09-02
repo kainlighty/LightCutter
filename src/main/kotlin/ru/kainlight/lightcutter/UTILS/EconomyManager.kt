@@ -19,14 +19,14 @@ class EconomyManager(val plugin: Main, val economy: String) {
         val region: Region = plugin.database.getRegion(regionName) ?: return
 
         val treeCost: Double = getRandomCost(region.earn)
-        val ecoMessage: String  = plugin.messageConfig.getConfig().getString("region.earn")!!
+        val ecoMessage: String  = plugin.getMessageConfig().getString("region.earn")!!
         salary(player, treeCost, ecoMessage);
     }
 
     fun depositWithoutRegion(player: Player, block: Block) {
         val blockName: String  = block.type.name.lowercase()
-        val logName: String = plugin.messageConfig.getConfig().getString("log-names.$blockName")!!
-        val ecoMessage: String = plugin.messageConfig.getConfig().getString("world.earn")!!.replace("<block>", logName);
+        val logName: String = plugin.getMessageConfig().getString("log-names.$blockName")!!
+        val ecoMessage: String = plugin.getMessageConfig().getString("world.earn")!!.replace("<block>", logName);
 
         val treeCost: Double = getRandomCost(plugin.config.getString("world-settings.costs.$blockName"))
 

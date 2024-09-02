@@ -74,7 +74,7 @@ class Database(
     }
 
     fun insertRegion(region: Region) {
-        if (isRegion(region.name) == true) return;
+        if (isRegion(region.name)) return;
 
         dataSource!!.connection.use { connection ->
             connection!!.prepareStatement("INSERT INTO lightcutter_regions VALUES (?, ?, ?, ?)").use { statement ->
@@ -88,7 +88,7 @@ class Database(
     }
 
     fun removeRegion(name: String) {
-        if (!isRegion(name)!!) return
+        if (!isRegion(name)) return
 
         dataSource!!.connection.use { connection ->
             connection.prepareStatement("DELETE FROM lightcutter_regions WHERE region_name = ?").use { statement ->
@@ -99,7 +99,7 @@ class Database(
     }
 
     fun updateRegion(region: Region) {
-        if (!isRegion(region.name)!!) return
+        if (! isRegion(region.name)) return
 
         dataSource!!.connection.use { connection ->
             connection.prepareStatement("UPDATE lightcutter_regions SET earn = ?, need_break = ?, cooldown = ? WHERE region_name = ?")
@@ -113,12 +113,14 @@ class Database(
         }
     }
 
-    fun isRegion(name: String): Boolean? {
+    fun isRegion(name: String): Boolean {
         dataSource?.connection.use { connection ->
             connection?.prepareStatement("SELECT * FROM lightcutter_regions WHERE region_name = ?").use { statement ->
                 statement?.setString(1, name)
                 statement?.executeQuery().use { resultSet ->
-                    return resultSet?.next()
+                    if (resultSet != null) {
+                        return resultSet.next()
+                    } else return false;
                 }
             }
         }

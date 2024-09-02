@@ -3,6 +3,7 @@ package ru.kainlight.lightcutter
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
+import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player
 import ru.kainlight.lightcutter.COMMANDS.MainCommand
 import ru.kainlight.lightcutter.DATA.Database
@@ -29,10 +30,10 @@ class Main : LightPlugin() {
 
     override fun onLoad() {
         this.saveDefaultConfig()
-        this.configurationVersion = 1.2
+        this.configurationVersion = 1.3
         updateConfig()
         LightConfig.saveLanguages(this, "language")
-        messageConfig.configurationVersion = 1.1
+        messageConfig.configurationVersion = 1.3
         messageConfig.updateConfig()
     }
 
@@ -44,9 +45,6 @@ class Main : LightPlugin() {
         this.bukkitAudiences = BukkitAudiences.create(this)
 
         this.loader()
-
-        this.registerCommand("lightcutter", MainCommand(this));
-        this.registerListener(BlockListener(this));
 
         Init.start(this, true)
     }
@@ -71,6 +69,13 @@ class Main : LightPlugin() {
         }
 
         disabledWorlds.addAll(config.getStringList("woodcutter-settings.disabled-worlds"));
+
+        this.registerCommand("lightcutter", MainCommand(this))
+        this.registerListener(BlockListener(this))
+    }
+
+    fun getMessageConfig(): FileConfiguration {
+        return this.messageConfig.getConfig()
     }
 
 

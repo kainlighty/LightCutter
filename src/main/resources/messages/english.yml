@@ -1,4 +1,21 @@
+config-version: 1.3 # DON'T TOUCH ME
 reload-config: "&aThe configuration has been successfully reloaded"
+
+
+help:
+  commands:
+    - ''
+    - '  &f&m   &c&l LightCutter &f&m   '
+    - '&c&l » &f/lightcutter list &8- &7region list'
+    - '&c&l » &f/lightcutter info <name> &8- &7region information'
+    - '&c&l » &f/lightcutter add <name> <earn> <need break> <cooldown> &8- &7add/update region'
+    - '&c&l » &f/lightcutter remove <name> &8- &7remove region'
+    - '&c&l » &f/lightcutter drop &8- &7enable/disable drops'
+    - '&c&l » &f/lightcutter reload &8- &7reload configurations'
+  add: "&c&l » &fEnter the name, earn, number of broken blocks and cooldown"
+  update: "&c&l » &fEnter the name, earn, number of broken blocks and cooldown"
+  remove: "&c&l » &fEnter the region name"
+  info: "&c&l » &fEnter the region name"
 
 log-names:
   oak_log: "&cOak"
@@ -31,6 +48,7 @@ region:
   earn: "&c ⛃ &fYou earned &a<amount>"
   remained: "&c ⛃ &fIt remains to break <value>"
   info: |
+    &r
     &fName: &e<region>
     &fEarn: &e<earn>
     &fNeed broken: &e<count>
@@ -43,3 +61,7 @@ region:
 
 changed:
   drop: "&aWood drops updated on <value>"
+
+list:
+  header: "Name <separator> Earn <separator> Need break <separator> Cooldown"
+  separator: "|"

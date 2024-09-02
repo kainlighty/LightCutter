@@ -9,10 +9,8 @@ data class Region(
     val needBreak: Int,
     val cooldown: Int,
 ) {
-    fun getInfo(regionName: String): String? {
-        val region: Region? = Main.INSTANCE.database.getRegion(regionName);
+    fun getInfo(): String {
         val messages: FileConfiguration = Main.INSTANCE.messageConfig.getConfig();
-        if(region == null) return messages.getString("region.not-exists");
 
         val info: String  = messages.getString("region.info")!!
         return info.replace("<region>", this.name)

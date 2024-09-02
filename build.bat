@@ -1,1 +1,1 @@
-gradlew shadowJar
+gradlew clean shadowJar

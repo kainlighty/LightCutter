@@ -19,6 +19,7 @@ import ru.kainlight.lightlibrary.equalsIgnoreCase
 import ru.kainlight.lightlibrary.legacyActionbar
 import ru.kainlight.lightlibrary.legacyMessage
 
+@Suppress("WARNINGS")
 class BlockListener(private val plugin: Main) : Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -30,7 +31,6 @@ class BlockListener(private val plugin: Main) : Listener {
         val player = event.player;
         val mode = plugin.config.getString("woodcutter-settings.mode")!!
         val WGRegion = LightPAPIRedefined.getRegion(player)
-
 
         if (mode.equalsIgnoreCase("REGION") && !WGRegion.isEmpty()) {
             /// $ if (player.getItemInHand().isSimilar(deleter)) return;
@@ -104,17 +104,17 @@ class BlockListener(private val plugin: Main) : Listener {
 
         if (!player.hasPermission("lightcutter.modes.bypass") && inModes) {
             if (player.gameMode != GameMode.SURVIVAL) {
-                val survivalMessage = plugin.messageConfig.getConfig().getString("warnings.not-survival");
+                val survivalMessage = plugin.getMessageConfig().getString("warnings.not-survival");
                 if (!survivalMessage.isNullOrBlank()) player.getAudience().legacyMessage(survivalMessage)
                 return false
             }
             if (player.allowFlight) {
-                val flyingMessage = plugin.messageConfig.getConfig().getString("warnings.is-flying");
+                val flyingMessage = plugin.getMessageConfig().getString("warnings.is-flying");
                 if (!flyingMessage.isNullOrBlank()) player.getAudience().legacyMessage(flyingMessage)
                 return false
             }
             if (player.isInvisible || player.hasMetadata("vanished")) {
-                val invisibleMessage = plugin.messageConfig.getConfig().getString("warnings.is-invisible");
+                val invisibleMessage = plugin.getMessageConfig().getString("warnings.is-invisible");
                 if (!invisibleMessage.isNullOrBlank()) player.getAudience().legacyMessage(invisibleMessage)
                 return false
             }
@@ -124,7 +124,7 @@ class BlockListener(private val plugin: Main) : Listener {
 
     private fun sendBreakMessage(player: Player , blockCount: Int) {
         val type = plugin.getConfig().getString("region-settings.messages-type")!!
-        val message = plugin.messageConfig.getConfig().getString("region.remained")!!
+        val message = plugin.getMessageConfig().getString("region.remained")!!
             .replace("<value>", blockCount.toString());
 
         if (type.equalsIgnoreCase("actionbar")) {
@@ -142,7 +142,7 @@ class BlockListener(private val plugin: Main) : Listener {
             val playerCooldown = plugin.playerCooldown.get(player.getUniqueId());
             if (playerCooldown != null && playerCooldown > currentTime) {
                 val remained = (playerCooldown - currentTime) / 1000L;
-                val message = plugin.messageConfig.getConfig().getString("warnings.cooldown")!!.replace("<value>", remained.toString());
+                val message = plugin.getMessageConfig().getString("warnings.cooldown")!!.replace("<value>", remained.toString());
 
                 if (type.equalsIgnoreCase("actionbar")) {
                     player.getAudience().legacyActionbar(message)
