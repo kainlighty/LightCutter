@@ -1,59 +1,60 @@
 config-version: 1.3 # DON'T TOUCH ME
-reload-config: "&aКонфигурация успешно перезагружена"
+reload-config: "<green>Конфигурация успешно перезагружена"
 
 help:
   commands:
     - ''
-    - '  &f&m   &c&l LightCutter &f&m   '
-    - '&c&l » &f/lightcutter list &8- &7список добавленных регионов'
-    - '&c&l » &f/lightcutter info <name> &8- &7информация о регионе'
-    - '&c&l » &f/lightcutter add <name> <earn> <need break> <cooldown> &8- &7добавить/обновить регион'
-    - '&c&l » &f/lightcutter remove <name> &8- &7удалить регион'
-    - '&c&l » &f/lightcutter drop &8- &7включить/выключить выпадение дерева'
-    - '&c&l » &f/lightcutter reload &8- &7перезагрузить конфигурации'
+    - '<white><st>   </st><red><bold> LightCutter </bold></red><white><st>   </st><reset>'
+    - '<red><bold> » </bold><white>/lightcutter list <dark_gray>- </dark_gray><gray>список добавленных регионов<reset>'
+    - '<red><bold> » </bold><white>/lightcutter info <yellow>название</yellow> <dark_gray>- </dark_gray><gray>информация о регионе<reset>'
+    - '<red><bold> » </bold><white>/lightcutter add <yellow>название, стоимость, количество блоков, задержка</yellow> <dark_gray>- </dark_gray><gray>добавить новый регион<reset>'
+    - '<red><bold> » </bold><white>/lightcutter update <yellow>название, стоимость, количество блоков, задержка</yellow> <dark_gray>- </dark_gray><gray>обновить регион<reset>'
+    - '<red><bold> » </bold><white>/lightcutter remove <yellow>название</yellow> <dark_gray>- </dark_gray><gray>удалить регион<reset>'
+    - '<red><bold> » </bold><white>/lightcutter drop <dark_gray>- </dark_gray><gray>включить/выключить выпадение дерева<reset>'
+    - '<red><bold> » </bold><white>/lightcutter reload <dark_gray>- </dark_gray><gray>перезагрузить конфигурации<reset>'
     - ''
-  add: "&c&l » &fВведите название, стоимость, количество блоков и время задержки"
-  update: "&c&l » &fВведите название, стоимость, количество блоков и время задержки"
-  remove: "&c&l » &fВведите название региона"
-  info: "&c&l » &fВведите название региона"
+  add: "<red><bold> » </bold><white>Введите название, стоимость, количество блоков и время задержки<reset>"
+  update: "<red><bold> » </bold><white>Введите название, стоимость, количество блоков и время задержки<reset>"
+  remove: "<red><bold> » </bold><white>Введите название региона<reset>"
+  info: "<red><bold> » </bold><white>Введите название региона<reset>"
 
 log-names:
-  oak_log: "&cДуб"
-  spruce_log: "&cЕль"
-  birch_log: "&cБерёза"
-  jungle_log: "&cТропический дуб"
-  acacia_log: "&cАкация"
-  dark_log: "&cТёмный дуб"
-  cherry_log: "&cВишнёвый дуб"
-  mangrove_log: "&cМангровый дуб"
+  oak_log: "<red>Дуб<reset>"
+  spruce_log: "<red>Ель<reset>"
+  birch_log: "<red>Берёза<reset>"
+  jungle_log: "<red>Тропический дуб<reset>"
+  acacia_log: "<red>Акация<reset>"
+  dark_log: "<red>Тёмный дуб<reset>"
+  cherry_log: "<red>Вишнёвый дуб<reset>"
+  mangrove_log: "<red>Мангровый дуб<reset>"
 
 warnings:
-  not-survival: "&cВключите режим выживания для зачисления заработка" # установите "" для отключения уведомления
-  is-flying: "&cВыключите полёт для зачисления заработка" # установите "" для отключения уведомления
-  is-invisible: "&cВыключите невидимость для зачисления заработка" # установите "" для отключения уведомления
-  cooldown: "&fВы не можете ломать блоки <value> секунд"
+  not-survival: "<red>Включите режим выживания для зачисления заработка<reset>" # установите "" для отключения
+  is-flying: "<red>Выключите полёт для зачисления заработка<reset>" # установите "" для отключения
+  is-invisible: "<red>Выключите невидимость для зачисления заработка<reset>" # установите "" для отключения
+  cooldown: "<white>Вы не можете ломать блоки #value# секунд<reset>"
 
 world:
-  earn: "&c ⛃ &fЗачислено &a<amount> за <block>"
+  earn: "<red> ⛃ </red><white>Зачислено </white><green>#amount# </green>за #block#<reset>"
 
 region:
-  earn: "&c ⛃ &fЗачислено &a<amount>"
-  remained: "&c ⛃ &fОсталось сломать <value> раз"
+  earn: "<red> ⛃ </red><white>Зачислено </white><green>#amount#<reset>"
+  remained: "<red> ⛃ </red><white>Осталось сломать #value# раз<reset>"
   info: |
-    &r
-    &fИмя: &e<region>
-    &fСтоимость: &e<earn>
-    &fНужно сломать: &e<count>
-    &fЗадержка: &e<cooldown>
-  added: "&fРегион &e<region> &fуспешно &aдобавлен"
-  removed: "&fРегион &e<region> &fуспешно &cудален"
-  updated: "&fРегион &e<region> &fуспешно &cобновлен"
-  exists: "&fРегион &e<region> &fуже &cсуществует"
-  not-exists: "&fРегион &e<region> &fне &cсуществует"
+    <reset>
+    <white>Имя: <yellow><region><reset>
+    <white>Стоимость: <yellow><earn><reset>
+    <white>Нужно сломать: <yellow><count><reset>
+    <white>Задержка: <yellow><cooldown><reset>
+  added: "<white>Регион <yellow>#region# </yellow>успешно <green>добавлен<reset>"
+  removed: "<white>Регион <yellow>#region# </yellow>успешно <red>удален<reset>"
+  updated: "<white>Регион <yellow>#region# </yellow>успешно <red>обновлен<reset>"
+  exists: "<white>Регион <yellow>#region# </yellow>уже <red>существует<reset>"
+  not-exists: "<white>Регион <yellow>#region# </yellow>не <red>существует<reset>"
 
 changed:
-  drop: "&aДроп дерева установлен на <value>"
+  drop: "<green>Дроп дерева установлен на #value#<reset>"
 
 list:
-  header: "Название <separator> Стоимость <separator> Нужно сломать <separator> Задержка"
+  header: "<white>Название #separator# Стоимость #separator# Нужно сломать #separator# Задержка<reset>"
   separator: "|"

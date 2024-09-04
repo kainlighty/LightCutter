@@ -1,5 +1,6 @@
 package ru.kainlight.lightcutter
 
+import me.clip.placeholderapi.PlaceholderAPI
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
@@ -8,6 +9,7 @@ import org.bukkit.entity.Player
 import ru.kainlight.lightcutter.COMMANDS.MainCommand
 import ru.kainlight.lightcutter.DATA.Database
 import ru.kainlight.lightcutter.LISTENERS.BlockListener
+import ru.kainlight.lightcutter.UTILS.Debug
 import ru.kainlight.lightcutter.UTILS.EconomyManager
 import ru.kainlight.lightlibrary.LightConfig
 import ru.kainlight.lightlibrary.LightPlugin
@@ -26,7 +28,7 @@ class Main : LightPlugin() {
     val playerBlockCount: MutableMap<Player, Int> = mutableMapOf()
     val playerCooldown: MutableMap<UUID, Long> = mutableMapOf()
 
-    private var isDebug: Boolean = false;
+
 
     override fun onLoad() {
         this.saveDefaultConfig()
@@ -40,7 +42,7 @@ class Main : LightPlugin() {
     override fun onEnable() {
         INSTANCE = this
 
-        this.isDebug = config.getBoolean("debug")
+        Debug.setStatus(config.getBoolean("debug"))
 
         this.bukkitAudiences = BukkitAudiences.create(this)
 
@@ -65,7 +67,7 @@ class Main : LightPlugin() {
         economyManager = EconomyManager(this, this.config.getString("woodcutter-settings.economy", "VAULT")!!)
 
         if (this.config.getString("woodcutter-settings.mode")!!.equalsIgnoreCase("REGION")) {
-            debug("Regions " + database.getRegions().map { it.name } + " successfully loaded");
+            Debug.message("Regions " + database.getRegions().map { it.name } + " successfully loaded");
         }
 
         disabledWorlds.addAll(config.getStringList("woodcutter-settings.disabled-worlds"));
@@ -78,11 +80,8 @@ class Main : LightPlugin() {
         return this.messageConfig.getConfig()
     }
 
-
     companion object {
         @JvmStatic lateinit var INSTANCE: Main
-        @JvmStatic
-        fun debug(message: String) { if (INSTANCE.isDebug) INSTANCE.logger.warning(message) }
     }
 }
 

@@ -1,23 +1,27 @@
 name: LightCutter
 version: '1.2.4'
 main: ru.kainlight.lightcutter.Main
-api-version: 1.13
+api-version: 1.16
 depend: [ WorldGuard, PlaceholderAPI, Vault ]
 softdepend: [ PlayerPoints ]
 authors: [ kainlight ]
 website: https://github.com/kainlighty
 
 libraries:
-  - org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.23
+  - org.jetbrains.kotlin:kotlin-stdlib:2.0.20
   - com.zaxxer:HikariCP:5.1.0
+  - net.kyori:adventure-api:4.17.0
+  - net.kyori:adventure-platform-bukkit:4.3.4
 
 commands:
   lightcutter:
-    permission: lightcutter.admin
+    permission: lightcutter.help
     aliases:
       - lc
 
 permissions:
+  lightcutter.break.bypass:
+    default: op
   lightcutter.modes.bypass:
     default: op
   lightcutter.cooldown.bypass:
@@ -27,6 +31,7 @@ permissions:
     children:
       lightcutter.modes.bypass: true
       lightcutter.cooldown.bypass: true
+      lightcutter.break.bypass: true
   lightcutter.admin:
     children:
       lightcutter.bypass.*: true

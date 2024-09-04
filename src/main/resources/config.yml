@@ -14,6 +14,7 @@ database-settings:
 woodcutter-settings:
   # REGION or WORLD
   mode: REGION
+  # works for versions above 1.19.4
   animation: true
   # VAULT, PLAYERPOINTS
   economy: VAULT

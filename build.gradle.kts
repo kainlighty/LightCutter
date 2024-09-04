@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("java")
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "2.0.20"
 
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
     id("com.github.johnrengelman.shadow").version("8.1.1")
@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib"))
 
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.6")
@@ -35,7 +35,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 kotlin {
     jvmToolchain(17)
@@ -57,7 +57,7 @@ tasks {
 
         val shadedPath = "ru.kainlight.lightcutter.shaded"
 
-        relocate("net.kyori", "$shadedPath.net.kyori")
+        //relocate("net.kyori", "$shadedPath.net.kyori")
         relocate("ru.kainlight.lightlibrary", "$shadedPath.lightlibrary")
     }
 }

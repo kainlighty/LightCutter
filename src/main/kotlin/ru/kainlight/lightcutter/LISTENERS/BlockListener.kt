@@ -13,11 +13,9 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import ru.kainlight.lightcutter.ANIMATIONS.FallAnimation
 import ru.kainlight.lightcutter.Main
+import ru.kainlight.lightcutter.UTILS.Debug
 import ru.kainlight.lightcutter.getAudience
-import ru.kainlight.lightlibrary.LightPAPIRedefined
-import ru.kainlight.lightlibrary.equalsIgnoreCase
-import ru.kainlight.lightlibrary.legacyActionbar
-import ru.kainlight.lightlibrary.legacyMessage
+import ru.kainlight.lightlibrary.*
 
 @Suppress("WARNINGS")
 class BlockListener(private val plugin: Main) : Listener {
@@ -100,22 +98,24 @@ class BlockListener(private val plugin: Main) : Listener {
     }
 
     private fun checkModes(player: Player): Boolean {
+        Debug.checkWorldGuardExtension()
+
         val inModes = plugin.getConfig().getBoolean("woodcutter-settings.breaking-in-modes");
 
         if (!player.hasPermission("lightcutter.modes.bypass") && inModes) {
             if (player.gameMode != GameMode.SURVIVAL) {
                 val survivalMessage = plugin.getMessageConfig().getString("warnings.not-survival");
-                if (!survivalMessage.isNullOrBlank()) player.getAudience().legacyMessage(survivalMessage)
+                if (!survivalMessage.isNullOrBlank()) player.getAudience().message(survivalMessage)
                 return false
             }
             if (player.allowFlight) {
                 val flyingMessage = plugin.getMessageConfig().getString("warnings.is-flying");
-                if (!flyingMessage.isNullOrBlank()) player.getAudience().legacyMessage(flyingMessage)
+                if (!flyingMessage.isNullOrBlank()) player.getAudience().message(flyingMessage)
                 return false
             }
             if (player.isInvisible || player.hasMetadata("vanished")) {
                 val invisibleMessage = plugin.getMessageConfig().getString("warnings.is-invisible");
-                if (!invisibleMessage.isNullOrBlank()) player.getAudience().legacyMessage(invisibleMessage)
+                if (!invisibleMessage.isNullOrBlank()) player.getAudience().message(invisibleMessage)
                 return false
             }
         }
@@ -125,12 +125,12 @@ class BlockListener(private val plugin: Main) : Listener {
     private fun sendBreakMessage(player: Player , blockCount: Int) {
         val type = plugin.getConfig().getString("region-settings.messages-type")!!
         val message = plugin.getMessageConfig().getString("region.remained")!!
-            .replace("<value>", blockCount.toString());
+            .replace("#value#", blockCount.toString());
 
         if (type.equalsIgnoreCase("actionbar")) {
-            player.getAudience().legacyActionbar(message)
+            player.getAudience().actionbar(message)
         } else if (type.equalsIgnoreCase("chat")) {
-            player.getAudience().legacyActionbar(message)
+            player.getAudience().actionbar(message)
         }
     }
 
@@ -142,12 +142,12 @@ class BlockListener(private val plugin: Main) : Listener {
             val playerCooldown = plugin.playerCooldown.get(player.getUniqueId());
             if (playerCooldown != null && playerCooldown > currentTime) {
                 val remained = (playerCooldown - currentTime) / 1000L;
-                val message = plugin.getMessageConfig().getString("warnings.cooldown")!!.replace("<value>", remained.toString());
+                val message = plugin.getMessageConfig().getString("warnings.cooldown")!!.replace("#value#", remained.toString());
 
                 if (type.equalsIgnoreCase("actionbar")) {
-                    player.getAudience().legacyActionbar(message)
+                    player.getAudience().actionbar(message)
                 } else if (type.equalsIgnoreCase("chat")) {
-                    player.getAudience().legacyMessage(message)
+                    player.getAudience().message(message)
                 }
 
                 return true;

@@ -8,9 +8,8 @@ import ru.kainlight.lightcutter.getAudience
 import ru.kainlight.lightlibrary.ECONOMY.LightEconomy
 import ru.kainlight.lightlibrary.equalsIgnoreCase
 import ru.kainlight.lightlibrary.legacyMessage
+import ru.kainlight.lightlibrary.message
 import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.util.*
 import kotlin.random.Random
 
 class EconomyManager(val plugin: Main, val economy: String) {
@@ -26,7 +25,7 @@ class EconomyManager(val plugin: Main, val economy: String) {
     fun depositWithoutRegion(player: Player, block: Block) {
         val blockName: String  = block.type.name.lowercase()
         val logName: String = plugin.getMessageConfig().getString("log-names.$blockName")!!
-        val ecoMessage: String = plugin.getMessageConfig().getString("world.earn")!!.replace("<block>", logName);
+        val ecoMessage: String = plugin.getMessageConfig().getString("world.earn")!!.replace("#block#", logName);
 
         val treeCost: Double = getRandomCost(plugin.config.getString("world-settings.costs.$blockName"))
 
@@ -37,14 +36,14 @@ class EconomyManager(val plugin: Main, val economy: String) {
         if (economy.equalsIgnoreCase("VAULT")) {
             val isDeposited = LightEconomy.VAULT!!.deposit(player, treeCost)
 
-            if (isDeposited) player.getAudience().legacyMessage(ecoMessage.replace("<amount>", treeCost.toString()))
-            else Main.debug("Deposit problem")
+            if (isDeposited) player.getAudience().message(ecoMessage.replace("#amount#", treeCost.toString()))
+            else Debug.message("Deposit problem")
         } else if (economy.equalsIgnoreCase("PLAYERPOINTS")) {
             val treeCostInt: Int  = treeCost.toInt()
 
             val isDeposited = LightEconomy.POINTS?.deposit(player, treeCost)
-            if(isDeposited == true) player.getAudience().legacyMessage(ecoMessage.replace("<amount>", treeCostInt.toString()))
-            else Main.debug("Deposit problem")
+            if(isDeposited == true) player.getAudience().message(ecoMessage.replace("#amount#", treeCostInt.toString()))
+            else Debug.message("Deposit problem")
         }
     }
 

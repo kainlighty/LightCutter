@@ -1,59 +1,59 @@
 config-version: 1.3 # DON'T TOUCH ME
-reload-config: "&aThe configuration has been successfully reloaded"
-
+reload-config: "<green>The configuration has been successfully reloaded"
 
 help:
   commands:
     - ''
-    - '  &f&m   &c&l LightCutter &f&m   '
-    - '&c&l » &f/lightcutter list &8- &7region list'
-    - '&c&l » &f/lightcutter info <name> &8- &7region information'
-    - '&c&l » &f/lightcutter add <name> <earn> <need break> <cooldown> &8- &7add/update region'
-    - '&c&l » &f/lightcutter remove <name> &8- &7remove region'
-    - '&c&l » &f/lightcutter drop &8- &7enable/disable drops'
-    - '&c&l » &f/lightcutter reload &8- &7reload configurations'
-  add: "&c&l » &fEnter the name, earn, number of broken blocks and cooldown"
-  update: "&c&l » &fEnter the name, earn, number of broken blocks and cooldown"
-  remove: "&c&l » &fEnter the region name"
-  info: "&c&l » &fEnter the region name"
+    - '<white><st>   </st><red><bold> LightCutter </bold><white><st>   </st><reset>'
+    - '<red><bold> » </bold><white>/lightcutter list <dark_gray>- <gray>region list<reset>'
+    - '<red><bold> » </bold><white>/lightcutter info <yellow>name</yellow> <dark_gray>- <gray>region information<reset>'
+    - '<red><bold> » </bold><white>/lightcutter add <yellow>name, earn, need break, cooldown</yellow> <dark_gray>- <gray>add new region<reset>'
+    - '<red><bold> » </bold><white>/lightcutter update <yellow>name, earn, need break, cooldown</yellow> <dark_gray>- <gray>update region<reset>'
+    - '<red><bold> » </bold><white>/lightcutter remove <yellow>name</yellow> <dark_gray>- <gray>remove region<reset>'
+    - '<red><bold> » </bold><white>/lightcutter drop <dark_gray>- <gray>enable/disable drops<reset>'
+    - '<red><bold> » </bold><white>/lightcutter reload <dark_gray>- <gray>reload configurations<reset>'
+  add: "<red><bold> » </bold><white>Enter the name, earn, number of broken blocks and cooldown<reset>"
+  update: "<red><bold> » </bold><white>Enter the name, earn, number of broken blocks and cooldown<reset>"
+  remove: "<red><bold> » </bold><white>Enter the region name<reset>"
+  info: "<red><bold> » </bold><white>Enter the region name<reset>"
 
 log-names:
-  oak_log: "&cOak"
-  spruce_log: "&cSpruce"
-  birch_log: "&cBirch"
-  jungle_log: "&cTropical oak"
-  acacia_log: "&cAcacia"
-  dark_log: "&cDark oak"
-  cherry_log: "&cCherry oak"
-  mangrove_log: "&cMangrove oak"
+  oak_log: "<red>Oak<reset>"
+  spruce_log: "<red>Spruce<reset>"
+  birch_log: "<red>Birch<reset>"
+  jungle_log: "<red>Tropical oak<reset>"
+  acacia_log: "<red>Acacia<reset>"
+  dark_log: "<red>Dark oak<reset>"
+  cherry_log: "<red>Cherry oak<reset>"
+  mangrove_log: "<red>Mangrove oak<reset>"
 
 warnings:
-  not-survival: "&cTurn on survival mode to start earning" # set "" for disable
-  is-flying: "&cTurn off the flight to start earning" # set "" for disable
-  is-invisible: "&cDisable invisibility to start earning" # set "" for disable
-  cooldown: "&fYou can't break blocks <value> seconds"
+  not-survival: "<red>Turn on survival mode to start earning<reset>" # set "" for disable
+  is-flying: "<red>Turn off the flight to start earning<reset>" # set "" for disable
+  is-invisible: "<red>Disable invisibility to start earning<reset>" # set "" for disable
+  cooldown: "<white>You can't break blocks <value> seconds<reset>"
 
 world:
-  earn: "&c ⛃ &fYou earned &a<amount> per <block>"
+  earn: "<red> ⛃ <white>You earned <green><amount> per #block#<reset>"
 
 region:
-  earn: "&c ⛃ &fYou earned &a<amount>"
-  remained: "&c ⛃ &fIt remains to break <value>"
+  earn: "<red> ⛃ <white>You earned <green><amount><reset>"
+  remained: "<red> ⛃ <white>It remains to break <value><reset>"
   info: |
-    &r
-    &fName: &e<region>
-    &fEarn: &e<earn>
-    &fNeed broken: &e<count>
-    &fCooldown: &e<cooldown>
-  added: "&fRegion &e<region> &fsuccessfully &aadded"
-  removed: "&fRegion &e<region> &fsuccessfully &cremoved"
-  updated: "&fRegion &e<region> &fsuccessfully &cupdated"
-  exists: "&fRegion &e<region> &falready &cexists"
-  not-exists: "&fRegion &e<region> &fdoes &cnot exist"
+    <reset>
+    <white>Name: <yellow><region><reset>
+    <white>Earn: <yellow><earn><reset>
+    <white>Need broken: <yellow><count><reset>
+    <white>Cooldown: <yellow><cooldown><reset>
+  added: "<white>Region <yellow><region> <white>successfully <green>added<reset>"
+  removed: "<white>Region <yellow><region> <white>successfully <red>removed<reset>"
+  updated: "<white>Region <yellow><region> <white>successfully <red>updated<reset>"
+  exists: "<white>Region <yellow><region> <white>already <red>exists<reset>"
+  not-exists: "<white>Region <yellow><region> <white>does <red>not exist<reset>"
 
 changed:
-  drop: "&aWood drops updated on <value>"
+  drop: "<green>Wood drops updated on <value><reset>"
 
 list:
-  header: "Name <separator> Earn <separator> Need break <separator> Cooldown"
+  header: "Name <separator> Earn <separator> Need break <separator> Cooldown<reset>"
   separator: "|"

@@ -13,9 +13,9 @@ data class Region(
         val messages: FileConfiguration = Main.INSTANCE.messageConfig.getConfig();
 
         val info: String  = messages.getString("region.info")!!
-        return info.replace("<region>", this.name)
-            .replace("<earn>", this.earn.toString())
-            .replace("<count>", this.needBreak.toString())
-            .replace("<cooldown>", this.cooldown.toString());
+        return info.replace("#region#", this.name)
+            .replace("#earn#", this.earn.toString())
+            .replace("#count#", this.needBreak.toString())
+            .replace("#cooldown#", this.cooldown.toString());
     }
 }
