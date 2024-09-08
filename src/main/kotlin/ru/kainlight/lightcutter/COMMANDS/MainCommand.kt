@@ -4,13 +4,10 @@ import net.kyori.adventure.text.event.ClickEvent
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
-import org.bukkit.entity.Player
 import ru.kainlight.lightcutter.DATA.Region
 import ru.kainlight.lightcutter.Main
 import ru.kainlight.lightcutter.getAudience
-import ru.kainlight.lightlibrary.LightPAPIRedefined
 import ru.kainlight.lightlibrary.equalsIgnoreCase
-import ru.kainlight.lightlibrary.legacyMessage
 import ru.kainlight.lightlibrary.message
 
 @Suppress("WARNINGS")
