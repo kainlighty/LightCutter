@@ -178,7 +178,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
     private fun noPermissionsMessages(sender: CommandSender, permission: String): Boolean {
         if (! sender.hasPermission("lightcutter.$permission")) {
             val msg = plugin.getMessageConfig().getString("warnings.no-permissions")
-            sender.message(msg)
+            sender.getAudience().message(msg)
             return true
         } else return false
     }
