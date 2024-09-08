@@ -20,6 +20,18 @@ commands:
       - lc
 
 permissions:
+  lightcutter.help:
+    default: op
+  lightcutter.add:
+    default: op
+  lightcutter.update:
+    default: op
+  lightcutter.remove:
+    default: op
+  lightcutter.info:
+    default: op
+  lightcutter.reload:
+    default: op
   lightcutter.break.bypass:
     default: op
   lightcutter.modes.bypass:
@@ -35,3 +47,9 @@ permissions:
   lightcutter.admin:
     children:
       lightcutter.bypass.*: true
+      lightcutter.help: true
+      lightcutter.add: true
+      lightcutter.update: true
+      lightcutter.remove: true
+      lightcutter.info: true
+      lightcutter.reload: true

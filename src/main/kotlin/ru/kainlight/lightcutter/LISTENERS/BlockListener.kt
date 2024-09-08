@@ -31,7 +31,6 @@ class BlockListener(private val plugin: Main) : Listener {
         val WGRegion = LightPAPIRedefined.getRegion(player)
 
         if (mode.equalsIgnoreCase("REGION") && !WGRegion.isEmpty()) {
-            /// $ if (player.getItemInHand().isSimilar(deleter)) return;
 
             val region = plugin.database.getRegion(WGRegion) ?: return;
             if (!this.checkModes(player)) {
@@ -98,8 +97,6 @@ class BlockListener(private val plugin: Main) : Listener {
     }
 
     private fun checkModes(player: Player): Boolean {
-        Debug.checkWorldGuardExtension()
-
         val inModes = plugin.getConfig().getBoolean("woodcutter-settings.breaking-in-modes");
 
         if (!player.hasPermission("lightcutter.modes.bypass") && inModes) {

@@ -1,4 +1,4 @@
-config-version: 1.3 # DON'T TOUCH ME
+config-version: 2.0 # DON'T TOUCH ME
 update-notification: true
 debug: false
 

@@ -32,10 +32,10 @@ class Main : LightPlugin() {
 
     override fun onLoad() {
         this.saveDefaultConfig()
-        this.configurationVersion = 1.3
+        this.configurationVersion = 2.0
         updateConfig()
         LightConfig.saveLanguages(this, "language")
-        messageConfig.configurationVersion = 1.3
+        messageConfig.configurationVersion = 2.0
         messageConfig.updateConfig()
     }
 
@@ -74,6 +74,8 @@ class Main : LightPlugin() {
 
         this.registerCommand("lightcutter", MainCommand(this))
         this.registerListener(BlockListener(this))
+
+        Debug.checkWorldGuardExtension()
     }
 
     fun getMessageConfig(): FileConfiguration {

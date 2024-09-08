@@ -1,4 +1,4 @@
-config-version: 1.3 # DON'T TOUCH ME
+config-version: 2.0 # DON'T TOUCH ME
 reload-config: "<green>Конфигурация успешно перезагружена"
 
 help:
@@ -10,7 +10,6 @@ help:
     - '<red><bold> » </bold><white>/lightcutter add <yellow>название, стоимость, количество блоков, задержка</yellow> <dark_gray>- </dark_gray><gray>добавить новый регион<reset>'
     - '<red><bold> » </bold><white>/lightcutter update <yellow>название, стоимость, количество блоков, задержка</yellow> <dark_gray>- </dark_gray><gray>обновить регион<reset>'
     - '<red><bold> » </bold><white>/lightcutter remove <yellow>название</yellow> <dark_gray>- </dark_gray><gray>удалить регион<reset>'
-    - '<red><bold> » </bold><white>/lightcutter drop <dark_gray>- </dark_gray><gray>включить/выключить выпадение дерева<reset>'
     - '<red><bold> » </bold><white>/lightcutter reload <dark_gray>- </dark_gray><gray>перезагрузить конфигурации<reset>'
     - ''
   add: "<red><bold> » </bold><white>Введите название, стоимость, количество блоков и время задержки<reset>"
@@ -29,6 +28,7 @@ log-names:
   mangrove_log: "<red>Мангровый дуб<reset>"
 
 warnings:
+  no-permissions: "<red>Недостаточно прав для выполнения этой команды<reset>"
   not-survival: "<red>Включите режим выживания для зачисления заработка<reset>" # установите "" для отключения
   is-flying: "<red>Выключите полёт для зачисления заработка<reset>" # установите "" для отключения
   is-invisible: "<red>Выключите невидимость для зачисления заработка<reset>" # установите "" для отключения
@@ -51,9 +51,6 @@ region:
   updated: "<white>Регион <yellow>#region# </yellow>успешно <red>обновлен<reset>"
   exists: "<white>Регион <yellow>#region# </yellow>уже <red>существует<reset>"
   not-exists: "<white>Регион <yellow>#region# </yellow>не <red>существует<reset>"
-
-changed:
-  drop: "<green>Дроп дерева установлен на #value#<reset>"
 
 list:
   header: "<white>Название #separator# Стоимость #separator# Нужно сломать #separator# Задержка<reset>"

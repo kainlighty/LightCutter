@@ -7,7 +7,6 @@ import ru.kainlight.lightcutter.Main
 import ru.kainlight.lightcutter.getAudience
 import ru.kainlight.lightlibrary.ECONOMY.LightEconomy
 import ru.kainlight.lightlibrary.equalsIgnoreCase
-import ru.kainlight.lightlibrary.legacyMessage
 import ru.kainlight.lightlibrary.message
 import java.text.DecimalFormat
 import kotlin.random.Random

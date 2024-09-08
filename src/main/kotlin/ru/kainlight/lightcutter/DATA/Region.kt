@@ -10,9 +10,9 @@ data class Region(
     val cooldown: Int,
 ) {
     fun getInfo(): String {
-        val messages: FileConfiguration = Main.INSTANCE.messageConfig.getConfig();
+        val messages: FileConfiguration = Main.INSTANCE.messageConfig.getConfig()
 
-        val info: String  = messages.getString("region.info")!!
+        val info: String  = messages.getString("region.info") ?: "null"
         return info.replace("#region#", this.name)
             .replace("#earn#", this.earn.toString())
             .replace("#count#", this.needBreak.toString())

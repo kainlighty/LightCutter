@@ -12,7 +12,7 @@ object Debug {
         if(isDebug) {
             val registeredIdentifiers = PlaceholderAPI.getRegisteredIdentifiers()
             if (!registeredIdentifiers.contains("worldguard")) {
-                this.message("WorldGuard extension not found for PlaceholderAPI")
+                this.message("PlaceholderAPI — Extension WorldGuard not found", Level.SEVERE)
             }
         }
     }
