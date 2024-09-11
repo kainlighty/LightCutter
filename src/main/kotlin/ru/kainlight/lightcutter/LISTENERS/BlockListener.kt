@@ -31,7 +31,6 @@ class BlockListener(private val plugin: Main) : Listener {
         val WGRegion = LightPAPIRedefined.getRegion(player)
 
         if (mode.equalsIgnoreCase("REGION") && !WGRegion.isEmpty()) {
-
             val region = plugin.database.getRegion(WGRegion) ?: return;
             if (!this.checkModes(player)) {
                 event.setCancelled(true);

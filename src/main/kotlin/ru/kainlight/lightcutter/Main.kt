@@ -51,7 +51,6 @@ class Main : LightPlugin() {
 
     override fun onDisable() {
         database.disconnect()
-
         this.disable()
     }
 
@@ -65,10 +64,10 @@ class Main : LightPlugin() {
         economyManager = EconomyManager(this, this.config.getString("woodcutter-settings.economy", "VAULT")!!)
 
         if (this.config.getString("woodcutter-settings.mode")!!.equalsIgnoreCase("REGION")) {
-            Debug.message("Regions " + database.getRegions().map { it.name } + " successfully loaded");
+            Debug.message("Regions " + database.getRegions().map { it.name } + " successfully loaded")
         }
 
-        disabledWorlds.addAll(config.getStringList("woodcutter-settings.disabled-worlds"));
+        disabledWorlds.addAll(config.getStringList("woodcutter-settings.disabled-worlds"))
 
         this.registerCommand("lightcutter", MainCommand(this))
         this.registerListener(BlockListener(this))

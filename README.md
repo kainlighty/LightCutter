@@ -3,9 +3,9 @@
 ---
 
 ## › Required
-1. #### [PlaceholderAPI](https://github.com/PlaceholderAPI/PlaceholderAPI) + [WorldGuard Extension](https://api.extendedclip.com/expansions/worldguard).
-2. #### [WorldGuard](https://dev.bukkit.org/projects/worldguard/files).
-3. #### [Vault](https://github.com/MilkBowl/Vault).
+1. #### [PlaceholderAPI](https://github.com/PlaceholderAPI/PlaceholderAPI) + [WorldGuard Extension](https://api.extendedclip.com/expansions/worldguard)
+2. #### [WorldGuard](https://dev.bukkit.org/projects/worldguard/files)
+3. #### [Vault](https://github.com/MilkBowl/Vault)
 
 ---
 

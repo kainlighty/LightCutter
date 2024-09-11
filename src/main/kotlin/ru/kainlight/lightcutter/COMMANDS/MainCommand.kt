@@ -4,6 +4,7 @@ import net.kyori.adventure.text.event.ClickEvent
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
+import org.bukkit.command.TabCompleter
 import ru.kainlight.lightcutter.DATA.Region
 import ru.kainlight.lightcutter.Main
 import ru.kainlight.lightcutter.getAudience
@@ -179,4 +180,12 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
             return true
         } else return false
     }
+
+    /*class Completer(private val plugin: Main): TabCompleter {
+        override fun onTabComplete(p0: CommandSender, command: Command, label: String, args: Array<String>?): MutableList<String>? {
+
+        }
+
+    }*/
+
 }

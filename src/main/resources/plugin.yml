@@ -47,10 +47,10 @@ permissions:
       lightcutter.break.bypass: true
   lightcutter.admin:
     children:
-      lightcutter.bypass.*: true
       lightcutter.help: true
       lightcutter.add: true
       lightcutter.update: true
       lightcutter.remove: true
       lightcutter.info: true
       lightcutter.reload: true
+      lightcutter.bypass.*: true
