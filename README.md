@@ -1,13 +1,9 @@
 # LightCheck — Break trees and earn money
 
----
-
 ## › Required
 1. #### [PlaceholderAPI](https://github.com/PlaceholderAPI/PlaceholderAPI) + [WorldGuard Extension](https://api.extendedclip.com/expansions/worldguard)
 2. #### [WorldGuard](https://dev.bukkit.org/projects/worldguard/files)
 3. #### [Vault](https://github.com/MilkBowl/Vault)
-
----
 
 ## › How to use it?
 
@@ -17,8 +13,6 @@
 4. #### Use command `/papi ecloud download WorldGuard`
 5. #### Reload PlaceholderAPI extensions `/papi reload`
 
----
-
 ## › Features
 
 - #### Realistic animation of a falling tree
@@ -27,13 +21,9 @@
 - #### Cost customizations
 - #### Message customizations
 
----
-
 ## › Review
 
-// SET VIDEO
-
----
+// COMING SOON
 
 ## › Commands and Permissions
 | Command            | Description                     | Permission                    |
