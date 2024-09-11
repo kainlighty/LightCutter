@@ -18,9 +18,7 @@ object Debug {
     }
 
     fun message(message: String, level: Level? = Level.WARNING) {
-        if (this.isDebug) {
-            Main.INSTANCE.logger.log(level, message)
-        }
+        if (this.isDebug) Main.INSTANCE.logger.log(level, message)
     }
 
     fun setStatus(status: Boolean) {
