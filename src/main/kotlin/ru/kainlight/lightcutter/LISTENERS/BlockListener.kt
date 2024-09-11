@@ -13,9 +13,11 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import ru.kainlight.lightcutter.ANIMATIONS.FallAnimation
 import ru.kainlight.lightcutter.Main
-import ru.kainlight.lightcutter.UTILS.Debug
 import ru.kainlight.lightcutter.getAudience
-import ru.kainlight.lightlibrary.*
+import ru.kainlight.lightlibrary.LightPAPIRedefined
+import ru.kainlight.lightlibrary.actionbar
+import ru.kainlight.lightlibrary.equalsIgnoreCase
+import ru.kainlight.lightlibrary.message
 
 @Suppress("WARNINGS")
 class BlockListener(private val plugin: Main) : Listener {

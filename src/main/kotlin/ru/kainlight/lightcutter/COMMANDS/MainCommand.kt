@@ -4,7 +4,6 @@ import net.kyori.adventure.text.event.ClickEvent
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
-import org.bukkit.command.TabCompleter
 import ru.kainlight.lightcutter.DATA.Region
 import ru.kainlight.lightcutter.Main
 import ru.kainlight.lightcutter.getAudience
