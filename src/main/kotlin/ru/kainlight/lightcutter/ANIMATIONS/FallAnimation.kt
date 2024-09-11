@@ -10,9 +10,11 @@ import org.bukkit.util.Transformation
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import ru.kainlight.lightcutter.Main
+import ru.kainlight.lightcutter.UTILS.Debug
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CopyOnWriteArraySet
+import java.util.logging.Level
 import kotlin.math.abs
 
 
@@ -36,6 +38,8 @@ class FallAnimation(private val plugin: Main,
         if (!isNatural!!) return;
         val allowDrop: Boolean = plugin.config.getBoolean("woodcutter-settings.allow-drop", true)
         val isAnimated: Boolean = plugin.config.getBoolean("woodcutter-settings.animation", true)
+
+        Debug.message("Animation started [$isAnimated]", Level.INFO)
 
         if(!isAnimated) {
             this.treeCapitator(allowDrop)

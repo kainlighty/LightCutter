@@ -28,8 +28,6 @@ class Main : LightPlugin() {
     val playerBlockCount: MutableMap<Player, Int> = mutableMapOf()
     val playerCooldown: MutableMap<UUID, Long> = mutableMapOf()
 
-
-
     override fun onLoad() {
         this.saveDefaultConfig()
         this.configurationVersion = 2.0

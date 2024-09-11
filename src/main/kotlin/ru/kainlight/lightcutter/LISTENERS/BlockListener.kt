@@ -70,6 +70,7 @@ class BlockListener(private val plugin: Main) : Listener {
             // Сбрасываем количество сломанных блоков для игрока
             plugin.playerBlockCount.remove(player)
             if(cooldown != 0) plugin.playerCooldown.put(player.uniqueId, cooldownEndTime)
+            event.setCancelled(true)
         } else if (mode.equalsIgnoreCase("WORLD") && WGRegion.isEmpty()) {
             if (!this.checkModes(player)) return;
             plugin.economyManager.depositWithoutRegion(player, block); // Оплата игроку
