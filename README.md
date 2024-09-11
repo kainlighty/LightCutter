@@ -21,9 +21,7 @@
 - #### Cost customizations
 - #### Message customizations
 
-## › Review
-
-// COMING SOON
+## › Review (COMING SOON)
 
 ## › Commands and Permissions
 | Command            | Description                     | Permission                    |
