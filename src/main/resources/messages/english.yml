@@ -5,7 +5,7 @@ help:
   commands:
     - ''
     - '<white><st>   </st><red><bold> LightCutter </bold><white><st>   </st><reset>'
-    - '<red><bold> » </bold><white>/lightcutter list <dark_gray>- <gray>region list<reset>'
+    - '<red><bold> » </bold><white>/lightcutter list <dark_gray>- <gray>regions list<reset>'
     - '<red><bold> » </bold><white>/lightcutter info <yellow>name</yellow> <dark_gray>- <gray>region information<reset>'
     - '<red><bold> » </bold><white>/lightcutter add <yellow>name, earn, need break, cooldown</yellow> <dark_gray>- <gray>add new region<reset>'
     - '<red><bold> » </bold><white>/lightcutter update <yellow>name, earn, need break, cooldown</yellow> <dark_gray>- <gray>update region<reset>'

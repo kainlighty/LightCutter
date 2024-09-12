@@ -1,9 +1,13 @@
 # LightCheck — Break trees and earn money
 
 ## › Required
-1. #### [PlaceholderAPI](https://github.com/PlaceholderAPI/PlaceholderAPI) + [WorldGuard Extension](https://api.extendedclip.com/expansions/worldguard)
-2. #### [WorldGuard](https://dev.bukkit.org/projects/worldguard/files)
-3. #### [Vault](https://github.com/MilkBowl/Vault)
+1. #### Java 17
+2. #### [PlaceholderAPI](https://github.com/PlaceholderAPI/PlaceholderAPI) + [WorldGuard Extension](https://api.extendedclip.com/expansions/worldguard)
+3. #### [WorldGuard](https://dev.bukkit.org/projects/worldguard/files)
+4. #### [Vault](https://github.com/MilkBowl/Vault)
+
+### › Optional
+- #### [PlayerPoints](https://www.spigotmc.org/resources/playerpoints.80745)
 
 ## › How to use it?
 
@@ -12,6 +16,8 @@
 3. #### Start your server
 4. #### Use command `/papi ecloud download WorldGuard`
 5. #### Reload PlaceholderAPI extensions `/papi reload`
+
+_**IMPORTANT**: If you have more than one region intersecting, give higher priority to where the region with the tree will be located_
 
 ## › Features
 
