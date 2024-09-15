@@ -46,4 +46,4 @@ _**IMPORTANT**: If you have more than one region intersecting, give higher prior
 | lightcutter.cooldown.bypass | No cooldown                             |
 | lightcutter.modes.bypass    | Allow earning in all gamemodes          |
 | lightcutter.bypass.*        | Break, cooldown and gamemode bypass     |
-| lightcheck.admin            | Full access to the plugin               |
+| lightcutter.admin           | Full access to the plugin               |
