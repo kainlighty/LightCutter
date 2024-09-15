@@ -1,12 +1,14 @@
-# LightCheck — Break trees and earn money
+# LightCutter — Break trees and earn money
 
 ## › Required
+
 1. #### Java 17
 2. #### [PlaceholderAPI](https://github.com/PlaceholderAPI/PlaceholderAPI) + [WorldGuard Extension](https://api.extendedclip.com/expansions/worldguard)
 3. #### [WorldGuard](https://dev.bukkit.org/projects/worldguard/files)
 4. #### [Vault](https://github.com/MilkBowl/Vault)
 
 ### › Optional
+
 - #### [PlayerPoints](https://www.spigotmc.org/resources/playerpoints.80745)
 
 ## › How to use it?
@@ -30,6 +32,7 @@ _**IMPORTANT**: If you have more than one region intersecting, give higher prior
 ## › Review (COMING SOON)
 
 ## › Commands and Permissions
+
 | Command            | Description                     | Permission                    |
 |--------------------|---------------------------------|-------------------------------|
 | lightcutter        | Help by commands                | lightcutter.help _(required)_ |
