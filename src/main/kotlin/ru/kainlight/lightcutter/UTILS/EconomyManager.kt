@@ -8,6 +8,7 @@ import ru.kainlight.lightcutter.getAudience
 import ru.kainlight.lightlibrary.ECONOMY.LightEconomy
 import ru.kainlight.lightlibrary.equalsIgnoreCase
 import ru.kainlight.lightlibrary.message
+import ru.kainlight.lightlibrary.multiMessage
 import java.text.DecimalFormat
 import kotlin.random.Random
 
@@ -35,13 +36,21 @@ class EconomyManager(val plugin: Main, val economy: String) {
         if (economy.equalsIgnoreCase("VAULT")) {
             val isDeposited = LightEconomy.VAULT!!.deposit(player, treeCost)
 
-            if (isDeposited) player.getAudience().message(ecoMessage.replace("#amount#", treeCost.toString()))
+            if (isDeposited) player.getAudience().multiMessage(
+                ecoMessage
+                    .replace("#amount#", treeCost.toString())
+                    .replace("#amount_rounded#", treeCost.toInt().toString())
+            )
             else Debug.message("Deposit problem")
         } else if (economy.equalsIgnoreCase("PLAYERPOINTS")) {
             val treeCostInt: Int  = treeCost.toInt()
 
             val isDeposited = LightEconomy.POINTS?.deposit(player, treeCost)
-            if(isDeposited == true) player.getAudience().message(ecoMessage.replace("#amount#", treeCostInt.toString()))
+            if(isDeposited == true) player.getAudience().multiMessage(
+                ecoMessage
+                    .replace("#amount#", treeCostInt.toString())
+                    .replace("#amount_rounded#", treeCost.toInt().toString())
+            )
             else Debug.message("Deposit problem")
         }
     }

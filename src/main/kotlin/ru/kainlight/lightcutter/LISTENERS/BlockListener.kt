@@ -14,10 +14,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent
 import ru.kainlight.lightcutter.ANIMATIONS.FallAnimation
 import ru.kainlight.lightcutter.Main
 import ru.kainlight.lightcutter.getAudience
-import ru.kainlight.lightlibrary.LightPAPIRedefined
-import ru.kainlight.lightlibrary.actionbar
-import ru.kainlight.lightlibrary.equalsIgnoreCase
-import ru.kainlight.lightlibrary.message
+import ru.kainlight.lightlibrary.*
 
 @Suppress("WARNINGS")
 class BlockListener(private val plugin: Main) : Listener {
@@ -104,17 +101,17 @@ class BlockListener(private val plugin: Main) : Listener {
         if (!player.hasPermission("lightcutter.modes.bypass") && inModes) {
             if (player.gameMode != GameMode.SURVIVAL) {
                 val survivalMessage = plugin.getMessageConfig().getString("warnings.not-survival");
-                if (!survivalMessage.isNullOrBlank()) player.getAudience().message(survivalMessage)
+                if (!survivalMessage.isNullOrBlank()) player.getAudience().multiMessage(survivalMessage)
                 return false
             }
             if (player.allowFlight) {
                 val flyingMessage = plugin.getMessageConfig().getString("warnings.is-flying");
-                if (!flyingMessage.isNullOrBlank()) player.getAudience().message(flyingMessage)
+                if (!flyingMessage.isNullOrBlank()) player.getAudience().multiMessage(flyingMessage)
                 return false
             }
             if (player.isInvisible || player.hasMetadata("vanished")) {
                 val invisibleMessage = plugin.getMessageConfig().getString("warnings.is-invisible");
-                if (!invisibleMessage.isNullOrBlank()) player.getAudience().message(invisibleMessage)
+                if (!invisibleMessage.isNullOrBlank()) player.getAudience().multiMessage(invisibleMessage)
                 return false
             }
         }
@@ -146,7 +143,7 @@ class BlockListener(private val plugin: Main) : Listener {
                 if (type.equalsIgnoreCase("actionbar")) {
                     player.getAudience().actionbar(message)
                 } else if (type.equalsIgnoreCase("chat")) {
-                    player.getAudience().message(message)
+                    player.getAudience().multiMessage(message)
                 }
 
                 return true;

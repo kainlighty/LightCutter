@@ -1,8 +1,11 @@
-config-version: 2.0 # DON'T TOUCH ME
+config-version: 2.1 # DON'T TOUCH ME
 update-notification: true
 debug: false
 
-language: ENGLISH # ENGLISH or RUSSIAN
+main-settings:
+  language: ENGLISH
+  parse_mode: "MINIMESSAGE"
+
 database-settings:
   storage: SQLite # SQLite or MYSQL
   host: localhost

@@ -1,4 +1,4 @@
-config-version: 2.0 # DON'T TOUCH ME
+config-version: 2.1 # DON'T TOUCH ME
 reload-config: "<green>The configuration has been successfully reloaded"
 
 help:
@@ -38,7 +38,7 @@ world:
   earn: "<red> ⛃ <white>You earned <green>#amount# per #block#<reset>"
 
 region:
-  earn: "<red> ⛃ <white>You earned <green>#amount#<reset>"
+  earn: "<red> ⛃ <white>You earned <green>#amount#<reset>" # Placeholder for displaying integers — #amount_rounded#
   remained: "<red> ⛃ <white>It remains to break #value#<reset>"
   info: |
     <reset>

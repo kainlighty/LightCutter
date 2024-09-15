@@ -13,6 +13,7 @@ import ru.kainlight.lightcutter.UTILS.EconomyManager
 import ru.kainlight.lightlibrary.LightConfig
 import ru.kainlight.lightlibrary.LightPlugin
 import ru.kainlight.lightlibrary.UTILS.Init
+import ru.kainlight.lightlibrary.UTILS.Parser
 import ru.kainlight.lightlibrary.equalsIgnoreCase
 import java.util.*
 
@@ -29,10 +30,10 @@ class Main : LightPlugin() {
 
     override fun onLoad() {
         this.saveDefaultConfig()
-        this.configurationVersion = 2.0
+        this.configurationVersion = 2.1
         updateConfig()
-        LightConfig.saveLanguages(this, "language")
-        messageConfig.configurationVersion = 2.0
+        LightConfig.saveLanguages(this, "main-settings.language")
+        messageConfig.configurationVersion = 2.1
         messageConfig.updateConfig()
     }
 
@@ -71,11 +72,17 @@ class Main : LightPlugin() {
         this.registerCommand("lightcutter", MainCommand(this))
         this.registerListener(BlockListener(this))
 
+        this.reloadParseMode()
+
         Debug.checkWorldGuardExtension()
     }
 
     fun getMessageConfig(): FileConfiguration {
         return this.messageConfig.getConfig()
+    }
+
+    fun reloadParseMode() {
+        Parser.parseMode = this.config.getString("main-settings.parse_mode", "MINIMESSAGE")!!
     }
 
     companion object {

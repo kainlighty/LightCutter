@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "ru.kainlight.lightcutter"
-version = "1.3.0"
+version = "1.3.0.1"
 
 repositories {
     mavenCentral()

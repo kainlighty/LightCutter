@@ -1,4 +1,4 @@
-config-version: 2.0 # DON'T TOUCH ME
+config-version: 2.1 # DON'T TOUCH ME
 reload-config: "<green>Конфигурация успешно перезагружена"
 
 help:
@@ -38,7 +38,7 @@ world:
   earn: "<red> ⛃ </red><white>Зачислено </white><green>#amount# </green>за #block#<reset>"
 
 region:
-  earn: "<red> ⛃ </red><white>Зачислено </white><green>#amount#<reset>"
+  earn: "<red> ⛃ </red><white>Зачислено </white><green>#amount#<reset>" # Плейсхолдер для вывода целых чисел — #amount_rounded#
   remained: "<red> ⛃ </red><white>Осталось сломать #value# раз<reset>"
   info: |
     <reset>

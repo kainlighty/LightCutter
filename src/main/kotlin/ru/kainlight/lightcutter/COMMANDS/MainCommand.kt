@@ -8,7 +8,7 @@ import ru.kainlight.lightcutter.DATA.Region
 import ru.kainlight.lightcutter.Main
 import ru.kainlight.lightcutter.getAudience
 import ru.kainlight.lightlibrary.equalsIgnoreCase
-import ru.kainlight.lightlibrary.message
+import ru.kainlight.lightlibrary.multiMessage
 
 @Suppress("WARNINGS")
 class MainCommand(private val plugin: Main) : CommandExecutor {
@@ -19,7 +19,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
         if (args.isEmpty() && command.name.equalsIgnoreCase("lightcutter")) {
             val helpCommands = plugin.getMessageConfig().getStringList("help.commands")
             helpCommands?.forEach {
-                sender.getAudience().message(it)
+                sender.getAudience().multiMessage(it)
             }
             return true;
         }
@@ -30,7 +30,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
 
                 if (args.size <= 4) {
                     val helpMessage = plugin.getMessageConfig().getString("help.add")
-                    sender.getAudience().message(helpMessage);
+                    sender.getAudience().multiMessage(helpMessage);
                     return true;
                 }
 
@@ -43,7 +43,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                     val regionAdded = plugin.getMessageConfig().getString("region.added")?.replace("#region#", regionName);
                     val newRegion = Region(regionName, earn, needBreak, cooldown);
                     plugin.database.insertRegion(newRegion);
-                    sender.getAudience().message(message = regionAdded,
+                    sender.getAudience().multiMessage(message = regionAdded,
                                                  hover = newRegion.getInfo(),
                                                  event = ClickEvent.Action.RUN_COMMAND,
                                                  "/lightcutter info $regionName")
@@ -51,7 +51,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 } else {
                     val regionExists =
                         plugin.getMessageConfig().getString("region.exists")?.replace("#region#", regionName);
-                    sender.getAudience().message(regionExists);
+                    sender.getAudience().multiMessage(regionExists);
                     return true;
                 }
             }
@@ -61,7 +61,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
 
                 if (args.size <= 4) {
                     val helpMessage = plugin.getMessageConfig().getString("help.update")
-                    sender.getAudience().message(helpMessage);
+                    sender.getAudience().multiMessage(helpMessage);
                     return true;
                 }
 
@@ -75,7 +75,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                         plugin.getMessageConfig().getString("region.updated")?.replace("#region#", regionName);
                     val newRegion = Region(regionName, earn, needBreak, cooldown);
                     plugin.database.updateRegion(newRegion);
-                    sender.getAudience().message(message = regionUpdated,
+                    sender.getAudience().multiMessage(message = regionUpdated,
                                                  hover = newRegion.getInfo(),
                                                  event = ClickEvent.Action.RUN_COMMAND,
                                                  "/lightcutter info $regionName")
@@ -83,7 +83,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 } else {
                     val regionExists =
                         plugin.getMessageConfig().getString("region.not-exists")?.replace("#region#", regionName);
-                    sender.getAudience().message(regionExists);
+                    sender.getAudience().multiMessage(regionExists);
                     return true;
                 }
             }
@@ -93,7 +93,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
 
                 if (args.size == 1) {
                     val helpMessage = plugin.getMessageConfig().getString("help.remove")
-                    sender.getAudience().message(helpMessage);
+                    sender.getAudience().multiMessage(helpMessage);
                     return true;
                 }
 
@@ -104,12 +104,12 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
 
                     val message =
                         plugin.getMessageConfig().getString("region.removed")?.replace("#region#", regionName);
-                    sender.getAudience().message(message);
+                    sender.getAudience().multiMessage(message);
                     return true;
                 } else {
                     val message =
                         plugin.getMessageConfig().getString("region.not-exists")?.replace("#region#", regionName);
-                    sender.getAudience().message(message);
+                    sender.getAudience().multiMessage(message);
                     return true;
                 }
             }
@@ -119,19 +119,19 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
 
                 if (args.size == 1) {
                     val helpMessage = plugin.getMessageConfig().getString("help.info")
-                    sender.getAudience().message(helpMessage);
+                    sender.getAudience().multiMessage(helpMessage);
                     return true;
                 }
 
                 val regionName = args[1];
                 val region = plugin.database.getRegion(regionName);
                 if (region != null) {
-                    sender.getAudience().message(region.getInfo());
+                    sender.getAudience().multiMessage(region.getInfo());
                     return true;
                 } else {
                     val message =
                         plugin.getMessageConfig().getString("region.not-exists")?.replace("#region#", regionName);
-                    sender.getAudience().message(message);
+                    sender.getAudience().multiMessage(message);
                     return true;
                 }
             }
@@ -150,7 +150,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 }
 
                 val msg = builder.toString()
-                sender.getAudience().message(msg)
+                sender.getAudience().multiMessage(msg)
                 return true;
             }
 
@@ -160,12 +160,14 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 plugin.saveDefaultConfig();
                 plugin.reloadConfig();
                 plugin.messageConfig.saveDefaultConfig();
-                plugin.messageConfig.reloadLanguage("language");
+                plugin.messageConfig.reloadLanguage("main-settings.language");
+
+                plugin.reloadParseMode()
 
                 plugin.disabledWorlds.addAll(plugin.config.getStringList("woodcutter-settings.disabled-worlds"));
 
                 val notify = plugin.getMessageConfig().getString("reload-config");
-                sender.getAudience().message(notify);
+                sender.getAudience().multiMessage(notify);
                 return true;
             }
         }
@@ -175,7 +177,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
     private fun noPermissionsMessages(sender: CommandSender, permission: String): Boolean {
         if (! sender.hasPermission("lightcutter.$permission")) {
             val msg = plugin.getMessageConfig().getString("warnings.no-permissions")
-            sender.getAudience().message(msg)
+            sender.getAudience().multiMessage(msg)
             return true
         } else return false
     }
