@@ -52,6 +52,7 @@ class Main : LightPlugin() {
     override fun onDisable() {
         database.disconnect()
         this.disable()
+        this.server.scheduler.cancelTasks(this)
     }
 
     private fun loader() {
