@@ -1,9 +1,9 @@
 name: LightCutter
-version: '1.3.0.1'
+version: '1.3.0.2'
 main: ru.kainlight.lightcutter.Main
 api-version: 1.16
 depend: [ WorldGuard, PlaceholderAPI, Vault ]
-softdepend: [ PlayerPoints ]
+softdepend: [ PlayerPoints, CMI ]
 authors: [ kainlight ]
 website: https://github.com/kainlighty
 
