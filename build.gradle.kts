@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "ru.kainlight.lightcutter"
-version = "1.3.0.2"
+version = "1.3.0.3"
 
 repositories {
     mavenCentral()
@@ -26,8 +26,8 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.zaxxer:HikariCP:5.1.0")
 
-    implementation("net.kyori:adventure-api:4.17.0")
-    implementation("net.kyori:adventure-text-minimessage:4.17.0")
+    implementation("net.kyori:adventure-api:4.18.0")
+    implementation("net.kyori:adventure-text-minimessage:4.18.0")
     implementation("net.kyori:adventure-platform-bukkit:4.3.4")
 
     implementation(files(
