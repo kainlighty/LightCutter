@@ -15,7 +15,6 @@ import ru.kainlight.lightlibrary.LightPlugin
 import ru.kainlight.lightlibrary.UTILS.Init
 import ru.kainlight.lightlibrary.UTILS.Parser
 import ru.kainlight.lightlibrary.equalsIgnoreCase
-import java.util.*
 
 class Main : LightPlugin() {
 
@@ -25,8 +24,6 @@ class Main : LightPlugin() {
     lateinit var economyManager: EconomyManager
 
     val disabledWorlds: MutableList<String> = mutableListOf()
-    val playerBlockCount: MutableMap<Player, Int> = mutableMapOf()
-    val playerCooldown: MutableMap<UUID, Long> = mutableMapOf()
 
     override fun onLoad() {
         this.saveDefaultConfig()
@@ -58,9 +55,9 @@ class Main : LightPlugin() {
     private fun loader() {
         this.enable()
 
-        database = Database(this);
-        database.connect();
-        database.createTables();
+        database = Database(this)
+        database.connect()
+        database.createTables()
 
         economyManager = EconomyManager(this, this.config.getString("woodcutter-settings.economy", "VAULT")!!)
 

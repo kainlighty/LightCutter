@@ -35,7 +35,7 @@ class FallAnimation(private val plugin: Main,
     }
 
     fun start() {
-        if (!isNatural!!) return;
+        if (!isNatural!!) return
         val allowDrop: Boolean = plugin.config.getBoolean("woodcutter-settings.allow-drop", true)
         val isAnimated: Boolean = plugin.config.getBoolean("woodcutter-settings.animation", true)
 
@@ -78,18 +78,18 @@ class FallAnimation(private val plugin: Main,
     }
 
     private fun spawnDisplay1_20(block: Block, allowDrop: Boolean) {
-        val location = block.location;
-        val blockData = block.type.createBlockData();
+        val location = block.location
+        val blockData = block.type.createBlockData()
 
         // Создаем экземпляр BlockDisplay
-        val blockDisplayInstance: Any = location.world.spawn(location, BlockDisplay::class.java);
+        val blockDisplayInstance: Any = location.world.spawn(location, BlockDisplay::class.java)
 
         if (blockDisplayInstance is BlockDisplay) {
-            blockDisplayInstance.block = blockData;
-            if (block != origin) block.type = Material.AIR;
+            blockDisplayInstance.block = blockData
+            if (block != origin) block.type = Material.AIR
 
-            val transformationY: Int = - 1 + (origin.y - (block.y));
-            val transformationZ: Float = (origin.y - block.y) + (origin.y - block.y) / 0.9F;
+            val transformationY: Int = - 1 + (origin.y - (block.y))
+            val transformationZ: Float = (origin.y - block.y) + (origin.y - block.y) / 0.9F
 
             plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
                 val transformation = Transformation(
@@ -99,9 +99,9 @@ class FallAnimation(private val plugin: Main,
                     blockDisplayInstance.transformation.rightRotation  //right rotation
                 )
 
-                blockDisplayInstance.interpolationDuration = 40;
-                blockDisplayInstance.interpolationDelay = - 1;
-                blockDisplayInstance.transformation = transformation;
+                blockDisplayInstance.interpolationDuration = 40
+                blockDisplayInstance.interpolationDelay = - 1
+                blockDisplayInstance.transformation = transformation
 
                 plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
                     val loc = blockDisplayInstance.location.add(0.5, (origin.y - (block.y + 0.7)) + 1, transformationY.toDouble())
@@ -110,10 +110,10 @@ class FallAnimation(private val plugin: Main,
                     this.removeTree(blockDisplayInstance, transformationY.toFloat(), blockData, allowDrop)
                 }, 18L)
 
-                if (allowDrop) block.breakNaturally();
-                else block.type = Material.AIR;
+                if (allowDrop) block.breakNaturally()
+                else block.type = Material.AIR
 
-            }, 2L);
+            }, 2L)
         } else {
             // Если не удалось создать экземпляр BlockDisplay
             plugin.logger.warning("Unable to create BlockDisplay instance")
@@ -129,52 +129,52 @@ class FallAnimation(private val plugin: Main,
         plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
             if (allowDrop) {
                 val b =
-                    blockDisplay.location.add(0.0, (transformationY + 2).toDouble(), transformationY.toDouble()).block;
+                    blockDisplay.location.add(0.0, (transformationY + 2).toDouble(), transformationY.toDouble()).block
                 if (b.type == Material.AIR) {
-                    b.type = blockData.material;
-                    b.breakNaturally();
+                    b.type = blockData.material
+                    b.breakNaturally()
                 }
             }/* else {
-                blockDisplay.getLocation().getWorld().dropItem(blockDisplay.getLocation().add(0, transformationY + 2, transformationY), new ItemStack(blockData.getMaterial()));
+                blockDisplay.getLocation().getWorld().dropItem(blockDisplay.getLocation().add(0, transformationY + 2, transformationY), new ItemStack(blockData.getMaterial()))
             }*/
-            blockDisplay.remove();
-        }, 4L);
+            blockDisplay.remove()
+        }, 4L)
     }
 
     fun restore() {
-        val seconds = plugin.config.getInt("region-settings.regeneration.seconds");
+        val seconds = plugin.config.getInt("region-settings.regeneration.seconds")
         if (seconds > 0) {
             Bukkit.getScheduler().runTaskLater(plugin, Runnable {
                 for (location in blocksToRestore.keys) {
-                    val block = location.block;
-                    if (block.type != Material.AIR) continue;
-                    val world = block.world;
-                    block.type = blocksToRestore.get(location)!!;
+                    val block = location.block
+                    if (block.type != Material.AIR) continue
+                    val world = block.world
+                    block.type = blocksToRestore.get(location)!!
 
-                    val particle = Particle.valueOf(plugin.getConfig().getString("region-settings.regeneration.particle.type")!!);
-                    val particleCount = plugin.getConfig().getInt("region-settings.regeneration.particle.count");
-                    world.spawnParticle(particle, location, particleCount);
+                    val particle = Particle.valueOf(plugin.getConfig().getString("region-settings.regeneration.particle.type")!!)
+                    val particleCount = plugin.getConfig().getInt("region-settings.regeneration.particle.count")
+                    world.spawnParticle(particle, location, particleCount)
 
-                    val sound = Sound.valueOf(plugin.getConfig().getString("region-settings.regeneration.sound.type") !!);
+                    val sound = Sound.valueOf(plugin.getConfig().getString("region-settings.regeneration.sound.type") !!)
                     val soundVolume: Float = plugin.getConfig().getDouble("region-settings.regeneration.sound.volume").toFloat()
-                    world.playSound(location, sound, soundVolume, soundVolume);
+                    world.playSound(location, sound, soundVolume, soundVolume)
                 }
-            }, 20L * seconds);
+            }, 20L * seconds)
         }
     }
 
     private fun scanFrom(block: Block) {
         if (!scannedBlocks.add(block.location)) return
-        if (abs(block.x - this.origin.x) > 3 || abs(block.z - this.origin.z) > 3) return;
+        if (abs(block.x - this.origin.x) > 3 || abs(block.z - this.origin.z) > 3) return
 
-        handleBlock(block, this.wood, brokenWoods, 90);
-        handleBlock(block, this.leave, brokenLeaves, 100);
+        handleBlock(block, this.wood, brokenWoods, 90)
+        handleBlock(block, this.leave, brokenLeaves, 100)
 
         for (face in BlockFace.entries) {
-            val relativeBlock = block.getRelative(face);
-            val relativeType = relativeBlock.type;
+            val relativeBlock = block.getRelative(face)
+            val relativeType = relativeBlock.type
             if (relativeType == this.wood || relativeType == this.leave) {
-                scanFrom(relativeBlock);
+                scanFrom(relativeBlock)
             }
         }
     }
@@ -182,8 +182,8 @@ class FallAnimation(private val plugin: Main,
     private fun handleBlock(block: Block, type: Material, blocks: MutableSet<Block> , limit: Int) {
         if (block.type == type) {
             if (blocks.size < limit) {
-                blocks.add(block);
-                blocksToRestore.put(block.location, block.type);
+                blocks.add(block)
+                blocksToRestore.put(block.location, block.type)
             }
         }
     }
@@ -232,14 +232,14 @@ class FallAnimation(private val plugin: Main,
         private val lower_1_19_4: Boolean = lower("1.19.3")
 
         @JvmStatic private fun lower(targetVersion: String): Boolean {
-            val serverVersion = Bukkit.getVersion();
+            val serverVersion = Bukkit.getVersion()
 
             // Извлечение версии Minecraft из строки
-            val versionParts = serverVersion.split("MC: ")[1].split("\\)");
-            val serverMinecraftVersion = versionParts[0];
+            val versionParts = serverVersion.split("MC: ")[1].split("\\)")
+            val serverMinecraftVersion = versionParts[0]
 
             // Сравнение версий
-            return serverMinecraftVersion.compareTo(targetVersion) < 0;
+            return serverMinecraftVersion.compareTo(targetVersion) < 0
         }
     }
 

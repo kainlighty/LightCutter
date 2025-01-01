@@ -16,6 +16,6 @@ data class Region(
         return info.replace("#region#", this.name)
             .replace("#earn#", this.earn.toString())
             .replace("#count#", this.needBreak.toString())
-            .replace("#cooldown#", this.cooldown.toString());
+            .replace("#cooldown#", this.cooldown.toString())
     }
 }

@@ -14,114 +14,121 @@ import org.bukkit.event.entity.EntityChangeBlockEvent
 import ru.kainlight.lightcutter.ANIMATIONS.FallAnimation
 import ru.kainlight.lightcutter.Main
 import ru.kainlight.lightcutter.getAudience
-import ru.kainlight.lightlibrary.*
+import ru.kainlight.lightlibrary.LightPAPIRedefined
+import ru.kainlight.lightlibrary.actionbar
+import ru.kainlight.lightlibrary.equalsIgnoreCase
+import ru.kainlight.lightlibrary.multiMessage
+import java.util.*
 
 @Suppress("WARNINGS")
 class BlockListener(private val plugin: Main) : Listener {
 
+    private val playerBlockCount: MutableMap<Player, Int> = mutableMapOf()
+    private val playerCooldown: MutableMap<UUID, Long> = mutableMapOf()
+
     @EventHandler(priority = EventPriority.LOWEST)
     fun onBlockBreak(event: BlockBreakEvent) {
-        val block = event.block;
-        if (! FallAnimation.isWood(block.type)) return;
-        if (plugin.disabledWorlds.contains(block.world.name)) return;
+        val block = event.block
+        if (!FallAnimation.isWood(block.type)) return
+        if (plugin.disabledWorlds.contains(block.world.name)) return
 
-        val player = event.player;
+        val player = event.player
         val mode = plugin.config.getString("woodcutter-settings.mode")!!
         val WGRegion = LightPAPIRedefined.getRegion(player)
 
         if (mode.equalsIgnoreCase("REGION") && !WGRegion.isEmpty()) {
-            val region = plugin.database.getRegion(WGRegion) ?: return;
+            val region = plugin.database.getRegion(WGRegion) ?: return
             if (!this.checkModes(player)) {
-                event.setCancelled(true);
-                return;
+                event.setCancelled(true)
+                return
             }
 
             val cooldown = region.cooldown
-            val cooldownEndTime = System.currentTimeMillis() + cooldown * 1000L;
+            val cooldownEndTime = System.currentTimeMillis() + cooldown * 1000L
             if (this.sendCooldownMessageIfPresent(player)) {
-                event.setCancelled(true);
-                return;
+                event.setCancelled(true)
+                return
             }
 
             // Получаем количество сломанных блоков для игрока и отнимаем
             val needBreak = region.needBreak
-            var blockCount = plugin.playerBlockCount.getOrDefault(player, needBreak);
+            var blockCount = this.playerBlockCount.getOrDefault(player, needBreak)
             // Обновляем количество сломанных блоков
-            blockCount--;
-            plugin.playerBlockCount.put(player, blockCount);
+            blockCount--
+            this.playerBlockCount.put(player, blockCount)
 
             // Проверяем количество сломанных блоков
             if (blockCount > 0) {
-                this.sendBreakMessage(player, blockCount);
-                event.setCancelled(true);
-                return;
+                this.sendBreakMessage(player, blockCount)
+                event.setCancelled(true)
+                return
             }
 
             // Оплата игроку
-            plugin.economyManager.depositWithRegion(player, WGRegion);
+            plugin.economyManager.depositWithRegion(player, WGRegion)
 
             // Запускаем анимацию дерева и его восстановление
-            val fallAnimation = FallAnimation(plugin, block);
-            fallAnimation.start();
-            fallAnimation.restore();
+            val fallAnimation = FallAnimation(plugin, block)
+            fallAnimation.start()
+            fallAnimation.restore()
 
             // Сбрасываем количество сломанных блоков для игрока
-            plugin.playerBlockCount.remove(player)
-            if(cooldown != 0) plugin.playerCooldown.put(player.uniqueId, cooldownEndTime)
+            this.playerBlockCount.remove(player)
+            if(cooldown != 0) this.playerCooldown.put(player.uniqueId, cooldownEndTime)
             event.setCancelled(true)
         } else if (mode.equalsIgnoreCase("WORLD") && WGRegion.isEmpty()) {
-            if (!this.checkModes(player)) return;
-            plugin.economyManager.depositWithoutRegion(player, block); // Оплата игроку
+            if (!this.checkModes(player)) return
+            plugin.economyManager.depositWithoutRegion(player, block) // Оплата игроку
         }
     }
 
     @EventHandler
     fun onFallingBlock(event: EntityChangeBlockEvent) {
-        if (event.entityType != EntityType.FALLING_BLOCK) return;
+        if (event.entityType != EntityType.FALLING_BLOCK) return
         val fallingBlock = event.entity as FallingBlock
-        if (FallAnimation.fallingBlocks.isEmpty()) return;
-        if (!FallAnimation.fallingBlocks.contains(fallingBlock)) return;
+        if (FallAnimation.fallingBlocks.isEmpty()) return
+        if (!FallAnimation.fallingBlocks.contains(fallingBlock)) return
 
-        val location = fallingBlock.location;
-        val world = location.getWorld();
-        val data = fallingBlock.blockData;
+        val location = fallingBlock.location
+        val world = location.world
+        val data = fallingBlock.blockData
 
         plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
-            world.getBlockAt(location).type = Material.AIR;
-            FallAnimation.fallingBlocks.remove(fallingBlock);
+            world.getBlockAt(location).type = Material.AIR
+            FallAnimation.fallingBlocks.remove(fallingBlock)
             if (fallingBlock.isOnGround) {
-                world.spawnParticle(Particle.BLOCK_CRACK, location, 50, data);
+                world.spawnParticle(Particle.BLOCK_CRACK, location, 50, data)
             }
-        }, 3L);
+        }, 3L)
     }
 
     private fun checkModes(player: Player): Boolean {
-        val inModes = plugin.getConfig().getBoolean("woodcutter-settings.breaking-in-modes");
+        val inModes = plugin.getConfig().getBoolean("woodcutter-settings.breaking-in-modes")
 
         if (!player.hasPermission("lightcutter.modes.bypass") && inModes) {
             if (player.gameMode != GameMode.SURVIVAL) {
-                val survivalMessage = plugin.getMessageConfig().getString("warnings.not-survival");
+                val survivalMessage = plugin.getMessageConfig().getString("warnings.not-survival")
                 if (!survivalMessage.isNullOrBlank()) player.getAudience().multiMessage(survivalMessage)
                 return false
             }
             if (player.allowFlight) {
-                val flyingMessage = plugin.getMessageConfig().getString("warnings.is-flying");
+                val flyingMessage = plugin.getMessageConfig().getString("warnings.is-flying")
                 if (!flyingMessage.isNullOrBlank()) player.getAudience().multiMessage(flyingMessage)
                 return false
             }
             if (player.isInvisible || player.hasMetadata("vanished")) {
-                val invisibleMessage = plugin.getMessageConfig().getString("warnings.is-invisible");
+                val invisibleMessage = plugin.getMessageConfig().getString("warnings.is-invisible")
                 if (!invisibleMessage.isNullOrBlank()) player.getAudience().multiMessage(invisibleMessage)
                 return false
             }
         }
-        return true;
+        return true
     }
 
     private fun sendBreakMessage(player: Player , blockCount: Int) {
         val type = plugin.getConfig().getString("region-settings.messages-type")!!
         val message = plugin.getMessageConfig().getString("region.remained")!!
-            .replace("#value#", blockCount.toString());
+            .replace("#value#", blockCount.toString())
 
         if (type.equalsIgnoreCase("actionbar")) {
             player.getAudience().actionbar(message)
@@ -132,13 +139,13 @@ class BlockListener(private val plugin: Main) : Listener {
 
     private fun sendCooldownMessageIfPresent(player: Player): Boolean {
         val type = plugin.getConfig().getString("region-settings.messages-type")!!
-        val currentTime = System.currentTimeMillis();
+        val currentTime = System.currentTimeMillis()
 
-        if (!player.hasPermission("lightcutter.cooldown.bypass") && !plugin.playerBlockCount.containsKey(player)) {
-            val playerCooldown = plugin.playerCooldown.get(player.getUniqueId());
+        if (!player.hasPermission("lightcutter.cooldown.bypass") && !this.playerBlockCount.containsKey(player)) {
+            val playerCooldown = this.playerCooldown.get(player.uniqueId)
             if (playerCooldown != null && playerCooldown > currentTime) {
-                val remained = (playerCooldown - currentTime) / 1000L;
-                val message = plugin.getMessageConfig().getString("warnings.cooldown")!!.replace("#value#", remained.toString());
+                val remained = (playerCooldown - currentTime) / 1000L
+                val message = plugin.getMessageConfig().getString("warnings.cooldown")!!.replace("#value#", remained.toString())
 
                 if (type.equalsIgnoreCase("actionbar")) {
                     player.getAudience().actionbar(message)
@@ -146,11 +153,11 @@ class BlockListener(private val plugin: Main) : Listener {
                     player.getAudience().multiMessage(message)
                 }
 
-                return true;
+                return true
             }
         }
 
-        return false;
+        return false
     }
 
 }

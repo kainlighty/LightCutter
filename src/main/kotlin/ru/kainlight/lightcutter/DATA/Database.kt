@@ -36,9 +36,9 @@ class Database(
 
     fun connect() {
         when (storage) {
-            "mariadb" -> configureDataSource("org.mariadb.jdbc.Driver", "jdbc:mariadb://", false);
-            "mysql" -> configureDataSource("com.mysql.cj.jdbc.Driver", "jdbc:mysql://", false);
-            "postgresql" -> configureDataSource("org.postgresql.Driver", "jdbc:postgresql://", false);
+            "mariadb" -> configureDataSource("org.mariadb.jdbc.Driver", "jdbc:mariadb://", false)
+            "mysql" -> configureDataSource("com.mysql.cj.jdbc.Driver", "jdbc:mysql://", false)
+            "postgresql" -> configureDataSource("org.postgresql.Driver", "jdbc:postgresql://", false)
             "sqlite" -> {
                 val dbFile = File(plugin.dataFolder, "$base.db")
                 if (!dbFile.exists()) {
@@ -48,21 +48,21 @@ class Database(
                         e.printStackTrace()
                     }
                 }
-                configureDataSource("org.sqlite.JDBC", dbFile.getAbsolutePath(), true);
+                configureDataSource("org.sqlite.JDBC", dbFile.absolutePath, true)
             }
         }
     }
 
     fun disconnect() {
         try {
-            if (isConnected()) dataSource?.close();
+            if (isConnected()) dataSource?.close()
         } catch (e: Exception) {
-            plugin.logger.info("DATABASE: ${e.message}");
+            plugin.logger.info("DATABASE: ${e.message}")
         }
     }
 
     private fun isConnected(): Boolean {
-        return dataSource != null && !dataSource?.isClosed!!;
+        return dataSource != null && !dataSource?.isClosed!!
     }
 
     fun createTables() {
@@ -74,15 +74,15 @@ class Database(
     }
 
     fun insertRegion(region: Region) {
-        if (isRegion(region.name)) return;
+        if (isRegion(region.name)) return
 
         dataSource!!.connection.use { connection ->
             connection!!.prepareStatement("INSERT INTO lightcutter_regions VALUES (?, ?, ?, ?)").use { statement ->
-                statement.setString(1, region.name);
-                statement.setString(2, region.earn);
-                statement.setInt(3, region.needBreak);
-                statement.setInt(4, region.cooldown);
-                statement.executeUpdate();
+                statement.setString(1, region.name)
+                statement.setString(2, region.earn)
+                statement.setInt(3, region.needBreak)
+                statement.setInt(4, region.cooldown)
+                statement.executeUpdate()
             }
         }
     }
@@ -120,7 +120,7 @@ class Database(
                 statement?.executeQuery().use { resultSet ->
                     if (resultSet != null) {
                         return resultSet.next()
-                    } else return false;
+                    } else return false
                 }
             }
         }

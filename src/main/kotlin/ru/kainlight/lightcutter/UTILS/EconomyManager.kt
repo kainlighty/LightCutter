@@ -7,7 +7,6 @@ import ru.kainlight.lightcutter.Main
 import ru.kainlight.lightcutter.getAudience
 import ru.kainlight.lightlibrary.ECONOMY.LightEconomy
 import ru.kainlight.lightlibrary.equalsIgnoreCase
-import ru.kainlight.lightlibrary.message
 import ru.kainlight.lightlibrary.multiMessage
 import java.text.DecimalFormat
 import kotlin.random.Random
@@ -19,13 +18,13 @@ class EconomyManager(val plugin: Main, val economy: String) {
 
         val treeCost: Double = getRandomCost(region.earn)
         val ecoMessage: String  = plugin.getMessageConfig().getString("region.earn")!!
-        salary(player, treeCost, ecoMessage);
+        salary(player, treeCost, ecoMessage)
     }
 
     fun depositWithoutRegion(player: Player, block: Block) {
         val blockName: String  = block.type.name.lowercase()
         val logName: String = plugin.getMessageConfig().getString("log-names.$blockName")!!
-        val ecoMessage: String = plugin.getMessageConfig().getString("world.earn")!!.replace("#block#", logName);
+        val ecoMessage: String = plugin.getMessageConfig().getString("world.earn")!!.replace("#block#", logName)
 
         val treeCost: Double = getRandomCost(plugin.config.getString("world-settings.costs.$blockName"))
 
@@ -60,7 +59,7 @@ class EconomyManager(val plugin: Main, val economy: String) {
 
         //val random: Random = Random()
         if (costString.contains("-")) {
-            val parts: List<String> = costString.split("-");
+            val parts: List<String> = costString.split("-")
             val min: Double  = parts[0].toDouble()
             val max: Double  = parts[1].toDouble()
             val randomValue: Double = min + (max - min) * Random.nextDouble()
