@@ -11,12 +11,18 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityChangeBlockEvent
-import ru.kainlight.lightcutter.ANIMATIONS.FallAnimation
+import ru.kainlight.lightcutter.ANIMATIONS.TreeAnimation
+import ru.kainlight.lightcutter.ANIMATIONS.isWood
+import ru.kainlight.lightcutter.DATA.MessageType
+import ru.kainlight.lightcutter.DATA.MessageType.ACTIONBAR
+import ru.kainlight.lightcutter.DATA.MessageType.CHAT
+import ru.kainlight.lightcutter.DATA.WoodCutterMode
+import ru.kainlight.lightcutter.DATA.WoodCutterMode.REGION
+import ru.kainlight.lightcutter.DATA.WoodCutterMode.WORLD
 import ru.kainlight.lightcutter.Main
 import ru.kainlight.lightcutter.getAudience
 import ru.kainlight.lightlibrary.LightPAPIRedefined
-import ru.kainlight.lightlibrary.actionbar
-import ru.kainlight.lightlibrary.equalsIgnoreCase
+import ru.kainlight.lightlibrary.multiActionbar
 import ru.kainlight.lightlibrary.multiMessage
 import java.util.*
 
@@ -29,24 +35,37 @@ class BlockListener(private val plugin: Main) : Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     fun onBlockBreak(event: BlockBreakEvent) {
         val block = event.block
-        if (!FallAnimation.isWood(block.type)) return
+
         if (plugin.disabledWorlds.contains(block.world.name)) return
+        val blockType = block.type
+        if (!blockType.isWood()) return
 
         val player = event.player
-        val mode = plugin.config.getString("woodcutter-settings.mode")!!
-        val WGRegion = LightPAPIRedefined.getRegion(player)
+        val worldGuardRegion = LightPAPIRedefined.getRegion(player)
+        val currentWoodCutterMode = WoodCutterMode.getCurrent()
 
-        if (mode.equalsIgnoreCase("REGION") && !WGRegion.isEmpty()) {
-            val region = plugin.database.getRegion(WGRegion) ?: return
-            if (!this.checkModes(player)) {
-                event.setCancelled(true)
+        if (currentWoodCutterMode == REGION && !worldGuardRegion.isEmpty()) {
+            val ownerBypass = plugin.config.getBoolean("region-settings.owner-bypass")
+            if (ownerBypass) {
+                LightPAPIRedefined.getRegionOwners(player)
+                    .takeIf { it.contains(player.name) }
+                    ?.let { return }
+            }
+
+            val region = plugin.database.getRegion(worldGuardRegion) ?: return
+
+            if (!player.isDefaultGamemode()) {
+                event.isCancelled = true
                 return
             }
 
+            val currentMessageType = MessageType.getCurrent()
+
             val cooldown = region.cooldown
-            val cooldownEndTime = System.currentTimeMillis() + cooldown * 1000L
-            if (this.sendCooldownMessageIfPresent(player)) {
-                event.setCancelled(true)
+            val currentTime = System.currentTimeMillis()
+            val cooldownEndTime = currentTime + cooldown * 1000L
+            if (player.sendCooldownMessageIfPresent(currentTime, currentMessageType)) {
+                event.isCancelled = true
                 return
             }
 
@@ -59,104 +78,117 @@ class BlockListener(private val plugin: Main) : Listener {
 
             // Проверяем количество сломанных блоков
             if (blockCount > 0) {
-                this.sendBreakMessage(player, blockCount)
-                event.setCancelled(true)
+                player.sendBreakMessage(blockCount, currentMessageType)
+                event.isCancelled = true
                 return
             }
 
-            // Оплата игроку
-            plugin.economyManager.depositWithRegion(player, WGRegion)
-
             // Запускаем анимацию дерева и его восстановление
-            val fallAnimation = FallAnimation(plugin, block)
-            fallAnimation.start()
-            fallAnimation.restore()
+            TreeAnimation.start(plugin, event)
+
+            // Оплата
+            plugin.economyManager.depositWithRegion(player, region)
 
             // Сбрасываем количество сломанных блоков для игрока
             this.playerBlockCount.remove(player)
             if(cooldown != 0) this.playerCooldown.put(player.uniqueId, cooldownEndTime)
-            event.setCancelled(true)
-        } else if (mode.equalsIgnoreCase("WORLD") && WGRegion.isEmpty()) {
-            if (!this.checkModes(player)) return
-            plugin.economyManager.depositWithoutRegion(player, block) // Оплата игроку
+
+            event.isCancelled = true
+        } else if (currentWoodCutterMode == WORLD && worldGuardRegion.isEmpty()) {
+            if (!player.isDefaultGamemode()) return
+            // Оплата
+            plugin.economyManager.depositWithoutRegion(player, blockType.name.lowercase())
         }
     }
 
+    // For < 1.19.4
     @EventHandler
     fun onFallingBlock(event: EntityChangeBlockEvent) {
+        if (TreeAnimation.fallingBlocks.isEmpty()) return
+
         if (event.entityType != EntityType.FALLING_BLOCK) return
         val fallingBlock = event.entity as FallingBlock
-        if (FallAnimation.fallingBlocks.isEmpty()) return
-        if (!FallAnimation.fallingBlocks.contains(fallingBlock)) return
+        if (!TreeAnimation.fallingBlocks.contains(fallingBlock)) return
 
         val location = fallingBlock.location
         val world = location.world
         val data = fallingBlock.blockData
 
-        plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
+        plugin.scheduleSyncDelayedTask(Runnable{
             world.getBlockAt(location).type = Material.AIR
-            FallAnimation.fallingBlocks.remove(fallingBlock)
+            TreeAnimation.fallingBlocks.remove(fallingBlock)
             if (fallingBlock.isOnGround) {
                 world.spawnParticle(Particle.BLOCK_CRACK, location, 50, data)
             }
         }, 3L)
     }
 
-    private fun checkModes(player: Player): Boolean {
-        val inModes = plugin.getConfig().getBoolean("woodcutter-settings.breaking-in-modes")
+    private fun Player.isDefaultGamemode(): Boolean {
+        val inModes = plugin.config.getBoolean("woodcutter-settings.breaking-in-modes", true)
 
-        if (!player.hasPermission("lightcutter.modes.bypass") && inModes) {
-            if (player.gameMode != GameMode.SURVIVAL) {
-                val survivalMessage = plugin.getMessageConfig().getString("warnings.not-survival")
-                if (!survivalMessage.isNullOrBlank()) player.getAudience().multiMessage(survivalMessage)
-                return false
+        if (!hasPermission("lightcutter.modes.bypass") && inModes) {
+            val warnings = listOfNotNull(
+                "warnings.not-survival".takeIf { gameMode != GameMode.SURVIVAL },
+                "warnings.is-flying".takeIf { allowFlight },
+                "warnings.is-invisible".takeIf { isInvisible || hasMetadata("vanished") }
+            ).mapNotNull { warningKey ->
+                plugin.getMessagesConfig().getString(warningKey)?.takeIf { it.isNotBlank() }
             }
-            if (player.allowFlight) {
-                val flyingMessage = plugin.getMessageConfig().getString("warnings.is-flying")
-                if (!flyingMessage.isNullOrBlank()) player.getAudience().multiMessage(flyingMessage)
-                return false
-            }
-            if (player.isInvisible || player.hasMetadata("vanished")) {
-                val invisibleMessage = plugin.getMessageConfig().getString("warnings.is-invisible")
-                if (!invisibleMessage.isNullOrBlank()) player.getAudience().multiMessage(invisibleMessage)
-                return false
-            }
+
+            warnings.forEach { getAudience().multiMessage(it) }
+
+            return warnings.isEmpty()
         }
         return true
     }
 
-    private fun sendBreakMessage(player: Player , blockCount: Int) {
-        val type = plugin.getConfig().getString("region-settings.messages-type")!!
-        val message = plugin.getMessageConfig().getString("region.remained")!!
-            .replace("#value#", blockCount.toString())
 
-        if (type.equalsIgnoreCase("actionbar")) {
-            player.getAudience().actionbar(message)
-        } else if (type.equalsIgnoreCase("chat")) {
-            player.getAudience().actionbar(message)
+    /*private fun Player.isDefaultGamemode(): Boolean {
+        val inModes = plugin.config.getBoolean("woodcutter-settings.breaking-in-modes", true)
+
+        if (!this.hasPermission("lightcutter.modes.bypass") && inModes) {
+            if (this.gameMode != GameMode.SURVIVAL) {
+                plugin.getMessageConfig().getString("warnings.not-survival")?.let {
+                    if(!it.isNotBlank()) this.getAudience().multiMessage(it)
+                }
+                return false
+            }
+            if (this.allowFlight) {
+                plugin.getMessageConfig().getString("warnings.is-flying")?.let {
+                    if(it.isNotBlank()) this.getAudience().multiMessage(it)
+                }
+                return false
+            }
+            if (this.isInvisible || this.hasMetadata("vanished")) {
+                plugin.getMessageConfig().getString("warnings.is-invisible")?.let {
+                    if(it.isNotBlank()) this.getAudience().multiMessage(it)
+                }
+                return false
+            }
         }
+        return true
+    }*/
+
+    private fun Player.sendBreakMessage(blockCount: Int, currentMessageType: MessageType) {
+        val message = plugin.getMessagesConfig().getString("region.remained")!!.replace("#value#", blockCount.toString())
+
+        if (currentMessageType == ACTIONBAR) this.getAudience().multiActionbar(message)
+        else if (currentMessageType == CHAT) this.getAudience().multiMessage(message)
     }
 
-    private fun sendCooldownMessageIfPresent(player: Player): Boolean {
-        val type = plugin.getConfig().getString("region-settings.messages-type")!!
-        val currentTime = System.currentTimeMillis()
+    private fun Player.sendCooldownMessageIfPresent(currentTime: Long, currentMessageType: MessageType): Boolean {
+        if (!this.hasPermission("lightcutter.cooldown.bypass") && !playerBlockCount.containsKey(this)) {
+            val playerCooldown = playerCooldown.get(this.uniqueId)
 
-        if (!player.hasPermission("lightcutter.cooldown.bypass") && !this.playerBlockCount.containsKey(player)) {
-            val playerCooldown = this.playerCooldown.get(player.uniqueId)
             if (playerCooldown != null && playerCooldown > currentTime) {
-                val remained = (playerCooldown - currentTime) / 1000L
-                val message = plugin.getMessageConfig().getString("warnings.cooldown")!!.replace("#value#", remained.toString())
+                val remained: Long = (playerCooldown - currentTime) / 1000L
+                val message = plugin.getMessagesConfig().getString("warnings.cooldown")!!.replace("#value#", remained.toString())
 
-                if (type.equalsIgnoreCase("actionbar")) {
-                    player.getAudience().actionbar(message)
-                } else if (type.equalsIgnoreCase("chat")) {
-                    player.getAudience().multiMessage(message)
-                }
-
+                if (currentMessageType == ACTIONBAR) this.getAudience().multiActionbar(message)
+                else if (currentMessageType == CHAT) this.getAudience().multiMessage(message)
                 return true
             }
         }
-
         return false
     }
 

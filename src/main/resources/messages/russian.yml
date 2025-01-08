@@ -1,5 +1,5 @@
 config-version: 2.1 # DON'T TOUCH ME
-reload-config: "<green>Конфигурация успешно перезагружена"
+reload-config: "<green>Все конфигурации успешно перезагружены"
 
 help:
   commands:

@@ -1,10 +1,18 @@
+## Gradle ##
 .gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
+## !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+## Maven ##
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
 ### IntelliJ IDEA ###
+./.idea
+.idea/
 .idea/modules.xml
 .idea/jarRepositories.xml
 .idea/compiler.xml
@@ -12,9 +20,6 @@ build/
 *.iws
 *.iml
 *.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
 
 ### Eclipse ###
 .apt_generated
@@ -41,8 +46,5 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-### My ###
-./.idea
-.idea/
-./build
-./gradle
+### Local ###
+/unused

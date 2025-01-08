@@ -14,23 +14,21 @@ import ru.kainlight.lightlibrary.multiMessage
 class MainCommand(private val plugin: Main) : CommandExecutor {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
-        if (this.noPermissionsMessages(sender, "help")) return true
+        if (sender.hasNoPermissionAndMessage("help")) return true
 
         if (args.isEmpty() && command.name.equalsIgnoreCase("lightcutter")) {
-            val helpCommands = plugin.getMessageConfig().getStringList("help.commands")
-            helpCommands?.forEach {
-                sender.getAudience().multiMessage(it)
-            }
+            plugin.getMessagesConfig().getStringList("help.commands").forEach { sender.getAudience().multiMessage(it) }
             return true
         }
 
         when (args[0].lowercase()) {
             "add" -> {
-                if(noPermissionsMessages(sender, "add")) return true
+                if (sender.hasNoPermissionAndMessage("add")) return true
 
                 if (args.size <= 4) {
-                    val helpMessage = plugin.getMessageConfig().getString("help.add")
-                    sender.getAudience().multiMessage(helpMessage)
+                    plugin.getMessagesConfig().getString("help.add").let {
+                        sender.getAudience().multiMessage(it)
+                    }
                     return true
                 }
 
@@ -40,28 +38,30 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 val cooldown = args[4].toInt()
 
                 if (plugin.database.getRegion(regionName) == null) {
-                    val regionAdded = plugin.getMessageConfig().getString("region.added")?.replace("#region#", regionName)
+                    val regionAdded =
+                        plugin.getMessagesConfig().getString("region.added")?.replace("#region#", regionName)
                     val newRegion = Region(regionName, earn, needBreak, cooldown)
                     plugin.database.insertRegion(newRegion)
                     sender.getAudience().multiMessage(message = regionAdded,
-                                                 hover = newRegion.getInfo(),
-                                                 event = ClickEvent.Action.RUN_COMMAND,
-                                                 "/lightcutter info $regionName")
+                                                      hover = newRegion.getInfo(),
+                                                      event = ClickEvent.Action.RUN_COMMAND,
+                                                      "/lightcutter info $regionName")
                     return true
                 } else {
-                    val regionExists =
-                        plugin.getMessageConfig().getString("region.exists")?.replace("#region#", regionName)
-                    sender.getAudience().multiMessage(regionExists)
+                    plugin.getMessagesConfig().getString("region.exists")?.replace("#region#", regionName).let {
+                        sender.getAudience().multiMessage(it)
+                    }
                     return true
                 }
             }
 
             "update" -> {
-                if(noPermissionsMessages(sender, "update")) return true
+                if (sender.hasNoPermissionAndMessage("update")) return true
 
                 if (args.size <= 4) {
-                    val helpMessage = plugin.getMessageConfig().getString("help.update")
-                    sender.getAudience().multiMessage(helpMessage)
+                    plugin.getMessagesConfig().getString("help.update").let {
+                        sender.getAudience().multiMessage(it)
+                    }
                     return true
                 }
 
@@ -72,28 +72,29 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
 
                 if (plugin.database.getRegion(regionName) != null) {
                     val regionUpdated =
-                        plugin.getMessageConfig().getString("region.updated")?.replace("#region#", regionName)
+                        plugin.getMessagesConfig().getString("region.updated")?.replace("#region#", regionName)
                     val newRegion = Region(regionName, earn, needBreak, cooldown)
                     plugin.database.updateRegion(newRegion)
                     sender.getAudience().multiMessage(message = regionUpdated,
-                                                 hover = newRegion.getInfo(),
-                                                 event = ClickEvent.Action.RUN_COMMAND,
-                                                 "/lightcutter info $regionName")
+                                                      hover = newRegion.getInfo(),
+                                                      event = ClickEvent.Action.RUN_COMMAND,
+                                                      "/lightcutter info $regionName")
                     return true
                 } else {
-                    val regionExists =
-                        plugin.getMessageConfig().getString("region.not-exists")?.replace("#region#", regionName)
-                    sender.getAudience().multiMessage(regionExists)
+                    plugin.getMessagesConfig().getString("region.not-exists")?.replace("#region#", regionName).let {
+                        sender.getAudience().multiMessage(it)
+                    }
                     return true
                 }
             }
 
             "remove" -> {
-                if(noPermissionsMessages(sender, "remove")) return true
+                if (sender.hasNoPermissionAndMessage("remove")) return true
 
                 if (args.size == 1) {
-                    val helpMessage = plugin.getMessageConfig().getString("help.remove")
-                    sender.getAudience().multiMessage(helpMessage)
+                    plugin.getMessagesConfig().getString("help.remove").let {
+                        sender.getAudience().multiMessage(it)
+                    }
                     return true
                 }
 
@@ -102,24 +103,25 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 if (region != null) {
                     plugin.database.removeRegion(regionName)
 
-                    val message =
-                        plugin.getMessageConfig().getString("region.removed")?.replace("#region#", regionName)
-                    sender.getAudience().multiMessage(message)
+                    plugin.getMessagesConfig().getString("region.removed")?.replace("#region#", regionName).let {
+                        sender.getAudience().multiMessage(it)
+                    }
                     return true
                 } else {
-                    val message =
-                        plugin.getMessageConfig().getString("region.not-exists")?.replace("#region#", regionName)
-                    sender.getAudience().multiMessage(message)
+                    plugin.getMessagesConfig().getString("region.not-exists")?.replace("#region#", regionName).let {
+                        sender.getAudience().multiMessage(it)
+                    }
                     return true
                 }
             }
 
             "information", "info", "i" -> {
-                if(noPermissionsMessages(sender, "info")) return true
+                if (sender.hasNoPermissionAndMessage("info")) return true
 
                 if (args.size == 1) {
-                    val helpMessage = plugin.getMessageConfig().getString("help.info")
-                    sender.getAudience().multiMessage(helpMessage)
+                    plugin.getMessagesConfig().getString("help.info").let {
+                        sender.getAudience().multiMessage(it)
+                    }
                     return true
                 }
 
@@ -129,23 +131,30 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                     sender.getAudience().multiMessage(region.getInfo())
                     return true
                 } else {
-                    val message = plugin.getMessageConfig().getString("region.not-exists")?.replace("#region#", regionName)
-                    sender.getAudience().multiMessage(message)
+                    plugin.getMessagesConfig().getString("region.not-exists")?.replace("#region#", regionName).let {
+                        sender.getAudience().multiMessage(it)
+                    }
                     return true
                 }
             }
 
             "list" -> {
-                if(noPermissionsMessages(sender, "list")) return true
+                if (sender.hasNoPermissionAndMessage("list")) return true
 
-                val separator = plugin.getMessageConfig().getString("list.separator") ?: "|"
-                val header = plugin.getMessageConfig().getString("list.header") ?: "<white>Name #separator# Earn #separator# Need break #separator# Cooldown<reset>"
+                val separator = plugin.getMessagesConfig().getString("list.separator") ?: "|"
+                val header = plugin.getMessagesConfig().getString("list.header")
+                    ?: "<white>Name #separator# Earn #separator# Need break #separator# Cooldown<reset>"
 
-                val builder: StringBuilder = StringBuilder()
-
-                builder.append(" ${header.replace("#separator#", separator)}").appendLine()
+                val builder: StringBuilder = StringBuilder(" ")
+                    .append(header.replace("#separator#", separator))
+                    .appendLine()
                 plugin.database.getRegions().forEach {
-                    builder.append("${it.name} $separator ${it.earn} $separator ${it.needBreak} $separator ${it.cooldown}").appendLine()
+                    builder.append(it.name).append(separator)
+                        .append(it.earn).append(separator)
+                        .append(it.needBreak).append(separator)
+                        .append(it.cooldown)
+                        .appendLine()
+                    //builder.append("${it.name} $separator ${it.earn} $separator ${it.needBreak} $separator ${it.cooldown}").appendLine()
                 }
 
                 val msg = builder.toString()
@@ -154,29 +163,24 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
             }
 
             "reload" -> {
-                if(noPermissionsMessages(sender, "reload")) return true
+                if (sender.hasNoPermissionAndMessage("reload")) return true
 
-                plugin.saveDefaultConfig()
-                plugin.reloadConfig()
-                plugin.messageConfig.saveDefaultConfig()
-                plugin.messageConfig.reloadLanguage("main-settings.language")
+                plugin.reloadConfigurations()
 
-                plugin.reloadParseMode()
-
-                plugin.disabledWorlds.addAll(plugin.config.getStringList("woodcutter-settings.disabled-worlds"))
-
-                val notify = plugin.getMessageConfig().getString("reload-config")
-                sender.getAudience().multiMessage(notify)
+                plugin.getMessagesConfig().getString("reload-config").let {
+                    sender.getAudience().multiMessage(it)
+                }
                 return true
             }
         }
         return true
     }
 
-    private fun noPermissionsMessages(sender: CommandSender, permission: String): Boolean {
-        if (! sender.hasPermission("lightcutter.$permission")) {
-            val msg = plugin.getMessageConfig().getString("warnings.no-permissions")
-            sender.getAudience().multiMessage(msg)
+    private fun CommandSender.hasNoPermissionAndMessage(permission: String): Boolean {
+        if (! this.hasPermission("lightcutter.$permission")) {
+            plugin.getMessagesConfig().getString("warnings.no-permissions").let {
+                this.getAudience().multiMessage(it)
+            }
             return true
         } else return false
     }

@@ -1,13 +1,18 @@
-config-version: 2.1 # DON'T TOUCH ME
+config-version: 2.2 # DON'T TOUCH ME
 update-notification: true
 debug: false
 
 main-settings:
+  # RUSSIAN or ENGLISH.
   language: ENGLISH
-  parse_mode: "MINIMESSAGE"
+  # LEGACY or MINIMESSAGE.
+  # LEGACY — &cText
+  # MINIMESSAGE — <red>Text
+  parse_mode: MINIMESSAGE
 
 database-settings:
-  storage: SQLite # SQLite or MYSQL
+  # SQLite or MYSQL
+  storage: SQLite
   host: localhost
   base: lightcutter
   user: admin
@@ -15,27 +20,29 @@ database-settings:
   pool-size: 2
 
 woodcutter-settings:
-  # REGION or WORLD
+  # REGION or WORLD.
   mode: REGION
-  # works for versions above 1.19.4
+  # Works for versions above 1.19.4.
   animation: true
-  # VAULT, PLAYERPOINTS
+  # VAULT or PLAYERPOINTS.
   economy: VAULT
+  # Example: 5.5
   economy-format: "#.#"
-  # If not the player has lightcutter.modes.bypass permissions
+  # If not the player has «lightcutter.modes.bypass» permissions.
+  # It checks whether the player is flying, whether he is not in survival or invisibility mode.
   breaking-in-modes: true
   allow-drop: true
+  # CHAT or ACTIONBAR.
+  messages-type: CHAT
   disabled-worlds:
     - world_name
 
 # For WORLD Mode
 # Without animations
 world-settings:
-  # CHAT or ACTIONBAR
-  messages-type: CHAT
-  # if you specified, for example, 5-10, then the number will be randomized.
-  # If 5, then the player will be charged a value equal to 5.
-  # If you specify 5.05, then 5.05
+  # if you specified, for example, «5-10», then the number will be randomized.
+  # If «5», then the player will be charged a value equal to 5.
+  # If you specify «5.05», then 5.05.
   costs:
     oak_log: 1
     spruce_log: 2
@@ -46,17 +53,47 @@ world-settings:
 
 # For REGION Mode
 region-settings:
-  # CHAT or ACTIONBAR
-  messages-type: ACTIONBAR
+  owner-bypass: true
   regeneration:
-    # If 0 - disabled
-    # If the value is less than 2, problems may occur
-    seconds: 5
+    enable: true
+    # Delay before restore tree.
+    # WARNING: If the value is less than 2, problems may occur.
+    delay: 5 # in seconds
+    animation:
+      enable: false
+      # This is the delay between the appearance of each block.
+      # The recommended value is 1.
+      delayPerBlock: 1
     particle:
       enable: true
-      type: EXPLOSION_NORMAL # https://mcreator.net/wiki/particles-ids
-      count: 4
+      # Random particles. One particle will be selected from this list.
+      # <PARTICLE_NAME>:<COUNT>
+      types: # https://mcreator.net/wiki/particles-ids
+        - 'EXPLOSION_NORMAL:3'
+        - 'CAMPFIRE_COSY_SMOKE:2'
+        - 'CRIT_MAGIC'
+        - 'DOLPHIN:5'
+        - 'DRIPPING_WATER'
+        - 'END_ROD'
+        - 'HAPPY_VILLAGER'
+        - 'SOUL_FIRE_FLAME'
+        - 'SOUL:3'
+        - 'TOTEM:5'
+        - 'WHITE_ASH:6'
+      # If you do not specify a value in the list, the default value will be applied.
+      default-count: 4
     sound:
       enable: true
-      type: BLOCK_WOOD_PLACE # https://www.planetminecraft.com/blog/all-sound-names---for-playsound/
-      volume: 0.5
+      # Random sound. One sound will be selected from this list.
+      # <SOUND_NAME>:<VOLUME>:<PITCH>
+      # If you only need to change the pitch, specify the value like this: BLOCK_WOOD_PLACE::0.7
+      # If you only need to change the volume: BLOCK_WOOD_PLACE:5
+      types: # https://www.planetminecraft.com/blog/all-sound-names---for-playsound
+        - 'BLOCK_WOOD_PLACE:2:0.8'
+        - 'BLOCK_WOOD_HIT:2' # Only the volume has been changed
+        - 'BLOCK_STEM_BREAK:1.5:0.8'
+        - 'BLOCK_STEM_HIT::0.7' # Only the pitch has been changed
+        - 'BLOCK_STEM_PLACE' # Default values are used
+      # If you do not specify a value in the list, the default value will be applied.
+      default-volume: 1
+      default-pitch: 0.8

@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "ru.kainlight.lightcutter"
-version = "1.3.0.3"
+version = "1.3.1"
 
 repositories {
     mavenCentral()
@@ -24,7 +24,6 @@ dependencies {
 
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.6")
-    //compileOnly("com.zaxxer:HikariCP:5.1.0")
     implementation("com.zaxxer:HikariCP:6.2.1")
 
     implementation("net.kyori:adventure-api:4.18.0")

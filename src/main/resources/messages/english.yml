@@ -1,5 +1,5 @@
 config-version: 2.1 # DON'T TOUCH ME
-reload-config: "<green>The configuration has been successfully reloaded"
+reload-config: "<green>All configurations has been successfully reloaded"
 
 help:
   commands:

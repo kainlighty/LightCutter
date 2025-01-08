@@ -12,13 +12,14 @@ object Debug {
         if(isDebug) {
             val registeredIdentifiers = PlaceholderAPI.getRegisteredIdentifiers()
             if (!registeredIdentifiers.contains("worldguard")) {
-                this.message("PlaceholderAPI — Extension WorldGuard not found", Level.SEVERE)
+                this.log("PlaceholderAPI extension «WorldGuard» not found", Level.SEVERE)
+                this.log("Install: /papi ecloud download WorldGuard", Level.SEVERE)
             }
         }
     }
 
-    fun message(message: String, level: Level? = Level.WARNING) {
-        if (this.isDebug) Main.INSTANCE.logger.log(level, message)
+    fun log(message: String, level: Level? = Level.INFO) {
+        if (this.isDebug) Main.instance.logger.log(level, message)
     }
 
     fun setStatus(status: Boolean) {

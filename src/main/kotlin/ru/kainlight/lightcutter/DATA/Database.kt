@@ -6,10 +6,9 @@ import ru.kainlight.lightcutter.Main
 import java.io.File
 import java.io.IOException
 
-
 class Database(
     val plugin: Main,
-    val storage: String = plugin.config.getString("database-settings.storage", "sqlite")!!.lowercase(),
+    val storage: String = plugin.config.getString("database-settings.storage", "sqlite") !!.lowercase(),
     val host: String = plugin.config.getString("database-settings.host", "localhost") !!,
     val port: Int = plugin.config.getInt("database-settings.port", 3306),
     val base: String = plugin.config.getString("database-settings.base", "lightcutter") !!,
@@ -30,6 +29,7 @@ class Database(
         config.username = user
         config.password = password
         config.maximumPoolSize = poolSize
+        config.poolName = "LightCutter-Pool"
 
         dataSource = HikariDataSource(config)
     }
@@ -41,7 +41,7 @@ class Database(
             "postgresql" -> configureDataSource("org.postgresql.Driver", "jdbc:postgresql://", false)
             "sqlite" -> {
                 val dbFile = File(plugin.dataFolder, "$base.db")
-                if (!dbFile.exists()) {
+                if (! dbFile.exists()) {
                     try {
                         dbFile.createNewFile()
                     } catch (e: IOException) {
@@ -57,12 +57,12 @@ class Database(
         try {
             if (isConnected()) dataSource?.close()
         } catch (e: Exception) {
-            plugin.logger.info("DATABASE: ${e.message}")
+            plugin.logger.severe(e.message)
         }
     }
 
     private fun isConnected(): Boolean {
-        return dataSource != null && !dataSource?.isClosed!!
+        return dataSource != null && ! dataSource?.isClosed !!
     }
 
     fun createTables() {
@@ -73,61 +73,79 @@ class Database(
         }
     }
 
-    fun insertRegion(region: Region) {
-        if (isRegion(region.name)) return
-
-        dataSource!!.connection.use { connection ->
-            connection!!.prepareStatement("INSERT INTO lightcutter_regions VALUES (?, ?, ?, ?)").use { statement ->
+    fun insertRegion(region: Region): Int {
+        dataSource?.connection.use { connection ->
+            connection?.prepareStatement(
+                "INSERT INTO lightcutter_regions (region_name, earn, need_break, cooldown) " +
+                        "SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM lightcutter_regions WHERE region_name = ?)"
+            )?.use { statement ->
                 statement.setString(1, region.name)
                 statement.setString(2, region.earn)
                 statement.setInt(3, region.needBreak)
                 statement.setInt(4, region.cooldown)
-                statement.executeUpdate()
+                statement.setString(5, region.name)
+                return statement.executeUpdate()
             }
         }
+        return 0
     }
 
-    fun removeRegion(name: String) {
-        if (!isRegion(name)) return
-
-        dataSource!!.connection.use { connection ->
-            connection.prepareStatement("DELETE FROM lightcutter_regions WHERE region_name = ?").use { statement ->
+    fun removeRegion(name: String): Int {
+        dataSource?.connection.use { connection ->
+            connection?.prepareStatement("DELETE FROM lightcutter_regions WHERE region_name = ?")?.use { statement ->
                 statement.setString(1, name)
-                statement.executeUpdate()
+                return statement.executeUpdate()
             }
         }
+        return 0
     }
 
-    fun updateRegion(region: Region) {
-        if (! isRegion(region.name)) return
-
-        dataSource!!.connection.use { connection ->
-            connection.prepareStatement("UPDATE lightcutter_regions SET earn = ?, need_break = ?, cooldown = ? WHERE region_name = ?")
-                .use { statement ->
-                    statement.setString(1, region.earn)
-                    statement.setInt(2, region.needBreak)
-                    statement.setInt(3, region.cooldown)
-                    statement.setString(4, region.name)
-                    statement.executeUpdate()
-                }
+    fun updateRegion(region: Region): Int {
+        dataSource?.connection.use { connection ->
+            connection?.prepareStatement("UPDATE lightcutter_regions SET earn = ?, need_break = ?, cooldown = ? WHERE region_name = ?")?.use { statement ->
+                statement.setString(1, region.earn)
+                statement.setInt(2, region.needBreak)
+                statement.setInt(3, region.cooldown)
+                statement.setString(4, region.name)
+                return statement.executeUpdate()
+            }
         }
+        return 0
     }
 
     fun isRegion(name: String): Boolean {
         dataSource?.connection.use { connection ->
-            connection?.prepareStatement("SELECT * FROM lightcutter_regions WHERE region_name = ?").use { statement ->
-                statement?.setString(1, name)
-                statement?.executeQuery().use { resultSet ->
-                    if (resultSet != null) {
-                        return resultSet.next()
-                    } else return false
+            connection?.prepareStatement("SELECT 1 FROM lightcutter_regions WHERE region_name = ?")
+                .use { statement ->
+                    statement?.setString(1, name)
+                    statement?.executeQuery().use { resultSet ->
+                        return resultSet?.next() == true
+                    }
                 }
-            }
         }
     }
 
-    fun getRegions(): MutableList<Region> {
-        val regionNames: MutableList<Region> = mutableListOf()
+    fun getRegion(name: String): Region? {
+        dataSource?.connection.use { connection ->
+            connection?.prepareStatement("SELECT * FROM lightcutter_regions WHERE region_name = ?")
+                .use { statement ->
+                    statement?.setString(1, name)
+                    statement?.executeQuery().use { resultSet ->
+                        if (resultSet?.next() == true) {
+                            val earn = resultSet.getString("earn")
+                            val needBreak = resultSet.getInt("need_break")
+                            val cooldown = resultSet.getInt("cooldown")
+
+                            return Region(name, earn, needBreak, cooldown)
+                        }
+                    }
+                }
+        }
+        return null
+    }
+
+    fun getRegions(): List<Region> {
+        val regionList: MutableList<Region> = mutableListOf()
         dataSource?.connection.use { connection ->
             connection?.prepareStatement("SELECT * FROM lightcutter_regions").use { statement ->
                 statement?.executeQuery().use { resultSet ->
@@ -137,31 +155,12 @@ class Database(
                         val needBreak = resultSet.getInt("need_break")
                         val cooldown = resultSet.getInt("cooldown")
 
-                        val region = Region(name, earn, needBreak, cooldown)
-                        regionNames.add(region)
+                        regionList.add(Region(name, earn, needBreak, cooldown))
                     }
                 }
             }
         }
-        return regionNames
-    }
-
-    fun getRegion(name: String): Region? {
-        dataSource?.connection.use { connection ->
-            connection?.prepareStatement("SELECT * FROM lightcutter_regions WHERE region_name = ?").use { statement ->
-                    statement?.setString(1, name)
-                    statement?.executeQuery().use { resultSet ->
-                        if (resultSet?.next() == true) {
-                            val earn = resultSet.getString("earn")
-                            val needBreak = resultSet.getInt("need_break")
-                            val cooldown = resultSet.getInt("cooldown")
-                            return Region(name, earn, needBreak, cooldown)
-                        } else {
-                            return null
-                        }
-                    }
-                }
-        }
+        return regionList
     }
 
 }

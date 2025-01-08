@@ -10,7 +10,7 @@ data class Region(
     val cooldown: Int,
 ) {
     fun getInfo(): String {
-        val messages: FileConfiguration = Main.INSTANCE.messageConfig.getConfig()
+        val messages: FileConfiguration = Main.instance.messageConfig.getConfig()
 
         val info: String  = messages.getString("region.info") ?: "null"
         return info.replace("#region#", this.name)
