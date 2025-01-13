@@ -190,8 +190,6 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
 
             }, 2L)
         }
-
-        /*location.world.spawn(location, BlockDisplay::class.java) { blockDisplay -> }*/
     }
 
     /**
@@ -262,7 +260,7 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
         var currentDelay = 0L
 
         // Ожидание перед запуском восстановления
-        plugin.runTaskLaterAsync(Runnable {
+        plugin.runTaskLaterAsynchronously(Runnable {
             // Разделение блоков дерева и листвы
             val leafBlocks =
                 oldBlocklist.filterValues { it.material == leaveMaterial }.keys.sortedByDescending { loc -> loc.y }

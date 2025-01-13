@@ -6,10 +6,10 @@ help:
     - ''
     - '<white><st>   </st><red><bold> LightCutter </bold></red><white><st>   </st><reset>'
     - '<red><bold> » </bold><white>/lightcutter list <dark_gray>- </dark_gray><gray>список добавленных регионов<reset>'
-    - '<red><bold> » </bold><white>/lightcutter info <yellow>название</yellow> <dark_gray>- </dark_gray><gray>информация о регионе<reset>'
-    - '<red><bold> » </bold><white>/lightcutter add <yellow>название, стоимость, количество блоков, задержка</yellow> <dark_gray>- </dark_gray><gray>добавить новый регион<reset>'
-    - '<red><bold> » </bold><white>/lightcutter update <yellow>название, стоимость, количество блоков, задержка</yellow> <dark_gray>- </dark_gray><gray>обновить регион<reset>'
-    - '<red><bold> » </bold><white>/lightcutter remove <yellow>название</yellow> <dark_gray>- </dark_gray><gray>удалить регион<reset>'
+    - '<red><bold> » </bold><white>/lightcutter info <yellow><название></yellow> <dark_gray>- </dark_gray><gray>информация о регионе<reset>'
+    - '<red><bold> » </bold><white>/lightcutter add <yellow><название> <стоимость> <количество блоков> <задержка></yellow> <dark_gray>- </dark_gray><gray>добавить новый регион<reset>'
+    - '<red><bold> » </bold><white>/lightcutter update <yellow><название> <стоимость> <количество блоков> <задержка></yellow> <dark_gray>- </dark_gray><gray>обновить регион<reset>'
+    - '<red><bold> » </bold><white>/lightcutter remove <yellow><название></yellow> <dark_gray>- </dark_gray><gray>удалить регион<reset>'
     - '<red><bold> » </bold><white>/lightcutter reload <dark_gray>- </dark_gray><gray>перезагрузить конфигурации<reset>'
     - ''
   add: "<red><bold> » </bold><white>Введите название, стоимость, количество блоков и время задержки<reset>"
@@ -28,7 +28,7 @@ log-names:
   mangrove_log: "<red>Мангровый дуб<reset>"
 
 warnings:
-  no-permissions: "<red>Недостаточно прав для выполнения этой команды<reset>"
+  no-permissions: "<red>Недостаточно права <italic>#permission#</italic> для выполнения этой команды<reset>"
   not-survival: "<red>Включите режим выживания для зачисления заработка<reset>" # установите "" для отключения
   is-flying: "<red>Выключите полёт для зачисления заработка<reset>" # установите "" для отключения
   is-invisible: "<red>Выключите невидимость для зачисления заработка<reset>" # установите "" для отключения
@@ -49,8 +49,8 @@ region:
   added: "<white>Регион <yellow>#region# </yellow>успешно <green>добавлен<reset>"
   removed: "<white>Регион <yellow>#region# </yellow>успешно <red>удален<reset>"
   updated: "<white>Регион <yellow>#region# </yellow>успешно <red>обновлен<reset>"
-  exists: "<white>Регион <yellow>#region# </yellow>уже <red>существует<reset>"
-  not-exists: "<white>Регион <yellow>#region# </yellow>не <red>существует<reset>"
+  exists: "<white>Регион <yellow>#region# <reset>уже существует"
+  not-exists: "<white>Регион <yellow>#region# <reset>не существует"
 
 list:
   header: "<white>Название #separator# Стоимость #separator# Нужно сломать #separator# Задержка<reset>"

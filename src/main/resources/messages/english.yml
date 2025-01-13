@@ -6,10 +6,10 @@ help:
     - ''
     - '<white><st>   </st><red><bold> LightCutter </bold><white><st>   </st><reset>'
     - '<red><bold> » </bold><white>/lightcutter list <dark_gray>- <gray>regions list<reset>'
-    - '<red><bold> » </bold><white>/lightcutter info <yellow>name</yellow> <dark_gray>- <gray>region information<reset>'
-    - '<red><bold> » </bold><white>/lightcutter add <yellow>name, earn, need break, cooldown</yellow> <dark_gray>- <gray>add new region<reset>'
-    - '<red><bold> » </bold><white>/lightcutter update <yellow>name, earn, need break, cooldown</yellow> <dark_gray>- <gray>update region<reset>'
-    - '<red><bold> » </bold><white>/lightcutter remove <yellow>name</yellow> <dark_gray>- <gray>remove region<reset>'
+    - '<red><bold> » </bold><white>/lightcutter info <yellow><name></yellow> <dark_gray>- <gray>region information<reset>'
+    - '<red><bold> » </bold><white>/lightcutter add <yellow><name> <earn> <need break> <cooldown></yellow> <dark_gray>- <gray>add new region<reset>'
+    - '<red><bold> » </bold><white>/lightcutter update <yellow><name> <earn> <need break> <cooldown></yellow> <dark_gray>- <gray>update region<reset>'
+    - '<red><bold> » </bold><white>/lightcutter remove <yellow><name></yellow> <dark_gray>- <gray>remove region<reset>'
     - '<red><bold> » </bold><white>/lightcutter reload <dark_gray>- <gray>reload configurations<reset>'
     - ''
   add: "<red><bold> » </bold><white>Enter the name, earn, number of broken blocks and cooldown<reset>"
@@ -28,7 +28,7 @@ log-names:
   mangrove_log: "<red>Mangrove oak<reset>"
 
 warnings:
-  no-permissions: "<red>You don't have permissions<reset>"
+  no-permissions: "<red>You don't have permission: #permission#<reset>"
   not-survival: "<red>Turn on survival mode to start earning<reset>" # set "" for disable
   is-flying: "<red>Turn off the flight to start earning<reset>" # set "" for disable
   is-invisible: "<red>Disable invisibility to start earning<reset>" # set "" for disable

@@ -1,4 +1,4 @@
-config-version: 2.2 # DON'T TOUCH ME
+config-version: 2.3 # DON'T TOUCH ME
 update-notification: true
 debug: false
 
@@ -11,13 +11,14 @@ main-settings:
   parse_mode: MINIMESSAGE
 
 database-settings:
-  # SQLite or MYSQL
+  # SQLite or MySQL
   storage: SQLite
   host: localhost
   base: lightcutter
   user: admin
   password: admin
   pool-size: 2
+  caching: true
 
 woodcutter-settings:
   # REGION or WORLD.
@@ -53,7 +54,8 @@ world-settings:
 
 # For REGION Mode
 region-settings:
-  owner-bypass: true
+  # If a player owns the region, the plugin ignores their actions. This is useful for tree adjustments, modifications, or deletions.
+  owner-bypass: false
   regeneration:
     enable: true
     # Delay before restore tree.

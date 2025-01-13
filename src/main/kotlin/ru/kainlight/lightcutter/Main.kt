@@ -3,8 +3,8 @@ package ru.kainlight.lightcutter
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
-import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player
+import ru.kainlight.lightcutter.COMMANDS.Completer
 import ru.kainlight.lightcutter.COMMANDS.MainCommand
 import ru.kainlight.lightcutter.DATA.Database
 import ru.kainlight.lightcutter.DATA.EconomyType
@@ -17,6 +17,7 @@ import ru.kainlight.lightlibrary.LightPlugin
 import ru.kainlight.lightlibrary.UTILS.Init
 import ru.kainlight.lightlibrary.UTILS.Parser
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.logging.Level
 
 class Main : LightPlugin() {
 
@@ -29,8 +30,9 @@ class Main : LightPlugin() {
 
     override fun onLoad() {
         this.saveDefaultConfig()
-        this.configurationVersion = 2.2
+        this.configurationVersion = 2.3
         updateConfig()
+
         LightConfig.saveLanguages(this, "main-settings.language")
         messageConfig.configurationVersion = 2.1
         messageConfig.updateConfig()
@@ -38,10 +40,23 @@ class Main : LightPlugin() {
 
     override fun onEnable() {
         instance = this
+        this.enable()
 
         this.bukkitAudiences = BukkitAudiences.create(this)
 
-        this.loader()
+        this.reloadConfigurations()
+        this.reloadDatabase()
+
+        economyManager = EconomyManager(this, EconomyType.getCurrent())
+
+        if (WoodCutterMode.getCurrent() == WoodCutterMode.REGION) {
+            val regions = database.getRegions()
+            if(regions.isEmpty()) Debug.log("The list of regions is empty", Level.WARNING)
+            else Debug.log("Regions " + regions.map { it.name } + " successfully loaded")
+        }
+
+        this.registerCommand("lightcutter", MainCommand(this), Completer(this))
+        this.registerListener(BlockListener(this))
 
         Init.start(this, true)
     }
@@ -49,28 +64,7 @@ class Main : LightPlugin() {
     override fun onDisable() {
         database.disconnect()
         this.disable()
-        this.server.scheduler.cancelTasks(this)
-    }
-
-    private fun loader() {
-        this.enable()
-
-        this.reloadConfigurations()
-
-        database = Database(this)
-        database.connect()
-        database.createTables()
-
-        economyManager = EconomyManager(this, EconomyType.getCurrent())
-
-        if (WoodCutterMode.getCurrent() == WoodCutterMode.REGION) {
-            Debug.log("Regions " + database.getRegions().map { it.name } + " successfully loaded")
-        }
-
-        this.registerCommand("lightcutter", MainCommand(this))
-        this.registerListener(BlockListener(this))
-
-        Debug.checkWorldGuardExtension()
+        this.cancelTasks()
     }
 
     fun reloadConfigurations() {
@@ -81,9 +75,16 @@ class Main : LightPlugin() {
 
         Parser.parseMode = this.config.getString("main-settings.parse_mode", "MINIMESSAGE")!!
 
-        Debug.setStatus(config.getBoolean("debug"))
+        Debug.updateStatus()
 
         this.disabledWorlds.addAll(this.config.getStringList("woodcutter-settings.disabled-worlds"))
+    }
+
+    fun reloadDatabase() {
+        database = Database(this)
+        database.connect()
+        database.createTables()
+        database.initializeCache()
     }
 
     companion object { @JvmStatic lateinit var instance: Main }
