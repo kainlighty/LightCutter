@@ -18,14 +18,14 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
         if (args.isEmpty() && command.name.equalsIgnoreCase("lightcutter")) {
-            sender.hasNoPermissionAndMessage("help")
+            sender.hasNoPermissionAndMessage("lightcutter.help")
             plugin.getMessagesConfig().getStringList("help.commands").forEach { sender.getAudience().multiMessage(it) }
             return true
         }
 
         when (args[0].lowercase()) {
             "add" -> {
-                if (sender.hasNoPermissionAndMessage("add")) return true
+                if (sender.hasNoPermissionAndMessage("lightcutter.add")) return true
 
                 if (args.size <= 4) {
                     plugin.getMessagesConfig().getString("help.add").let {
@@ -64,7 +64,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
             }
 
             "update" -> {
-                if (sender.hasNoPermissionAndMessage("update")) return true
+                if (sender.hasNoPermissionAndMessage("lightcutter.update")) return true
 
                 if (args.size <= 4) {
                     plugin.getMessagesConfig().getString("help.update").let {
@@ -93,7 +93,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
             }
 
             "remove" -> {
-                if (sender.hasNoPermissionAndMessage("remove")) return true
+                if (sender.hasNoPermissionAndMessage("lightcutter.remove")) return true
 
                 if (args.size == 1) {
                     plugin.getMessagesConfig().getString("help.remove").let {
@@ -115,7 +115,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
             }
 
             "information", "info", "i" -> {
-                if (sender.hasNoPermissionAndMessage("info")) return true
+                if (sender.hasNoPermissionAndMessage("lightcutter.info")) return true
 
                 if (args.size == 1) {
                     plugin.getMessagesConfig().getString("help.info").let {
@@ -138,7 +138,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
             }
 
             "list" -> {
-                if (sender.hasNoPermissionAndMessage("list")) return true
+                if (sender.hasNoPermissionAndMessage("lightcutter.list")) return true
 
                 val separator = plugin.getMessagesConfig().getString("list.separator") ?: "|"
                 val header = plugin.getMessagesConfig().getString("list.header")
@@ -162,7 +162,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
             }
 
             "reload" -> {
-                if (sender.hasNoPermissionAndMessage("reload")) return true
+                if (sender.hasNoPermissionAndMessage("lightcutter.reload")) return true
 
                 val arg = args.getOrNull(1)
                 if(arg != null && arg.equalsIgnoreCase("+database")) {
@@ -181,7 +181,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
     }
 
     private fun CommandSender.hasNoPermissionAndMessage(permission: String): Boolean {
-        if (!this.hasPermission("lightcutter.$permission")) {
+        if (!this.hasPermission(permission)) {
             plugin.getMessagesConfig().getString("warnings.no-permissions")?.let {
                 this.getAudience().multiMessage(it.replace("#permission#", permission))
             }
