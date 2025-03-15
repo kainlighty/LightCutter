@@ -1,14 +1,15 @@
-package ru.kainlight.lightcutter.COMMANDS
+package ru.kainlight.lightcutter.commands
 
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
 import org.bukkit.entity.Player
 import ru.kainlight.lightcutter.Main
+import ru.kainlight.lightcutter.api.LightCutterAPI
 import ru.kainlight.lightlibrary.API.WorldGuardAPI
 import ru.kainlight.lightlibrary.equalsIgnoreCase
 
-class Completer(private val plugin: Main) : TabCompleter {
+internal class Completer(private val plugin: Main) : TabCompleter {
 
     override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<out String>): List<String>? {
         if(!command.name.equalsIgnoreCase("lightcutter") || !command.aliases.contains("lc")) return null
@@ -23,7 +24,7 @@ class Completer(private val plugin: Main) : TabCompleter {
             2 -> {
                 when (args[0].lowercase()) {
                     "update", "remove", "info" -> {
-                        val regions = plugin.database.getRegions().map { it.name }
+                        val regions = LightCutterAPI.getProvider().regionHandler.getRegions().map { it.name }
                         completions.add("<name>")
                         if (regions.isNotEmpty()) {
                             completions.addAll(regions)
@@ -33,7 +34,7 @@ class Completer(private val plugin: Main) : TabCompleter {
                     "add" -> {
                         completions.add("<name>")
                         if (sender is Player) {
-                            val regions = WorldGuardAPI.getRegions(sender.location)
+                            val regions = WorldGuardAPI.getRegionNames(sender.location)
                             if (regions.isNotEmpty()) {
                                 completions.addAll(regions)
                             }

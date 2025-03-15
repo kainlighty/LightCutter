@@ -1,16 +1,17 @@
-package ru.kainlight.lightcutter.DATA
+package ru.kainlight.lightcutter.api
 
 import org.bukkit.configuration.file.FileConfiguration
 import ru.kainlight.lightcutter.Main
 
-data class Region(
-    val name: String,
-    val earn: String,
-    val needBreak: Int,
-    val cooldown: Int,
-) {
-    fun getInfo(): String {
-        val messages: FileConfiguration = Main.instance.messageConfig.getConfig()
+internal data class IRegion(
+    override val name: String,
+    override val earn: String,
+    override val needBreak: Int,
+    override val cooldown: Int
+) : Region {
+
+    override fun getInfo(): String {
+        val messages: FileConfiguration = Main.getInstance().messageConfig.getConfig()
 
         val info: String  = messages.getString("region.info") ?: "null"
         return info.replace("#region#", this.name)

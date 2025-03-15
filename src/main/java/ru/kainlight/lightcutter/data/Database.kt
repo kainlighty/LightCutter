@@ -1,16 +1,23 @@
-package ru.kainlight.lightcutter.DATA
+package ru.kainlight.lightcutter.data
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import ru.kainlight.lightcutter.Main
-import ru.kainlight.lightcutter.UTILS.Debug
+import ru.kainlight.lightcutter.api.IRegion
+import ru.kainlight.lightcutter.api.Region
+import ru.kainlight.lightcutter.api.RegionHandler
+import ru.kainlight.lightlibrary.UTILS.DebugBukkit
+import ru.kainlight.lightlibrary.UTILS.useCatching
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
-import java.util.logging.Level
 
 @Suppress("UNUSED")
-class Database(private val plugin: Main) {
+internal class Database(private val plugin: Main) : RegionHandler {
+
+    init {
+        initializeCache()
+    }
 
     private val host: String = plugin.config.getString("database-settings.host", "localhost") !!
     private val port: Int = plugin.config.getInt("database-settings.port", 3306)
@@ -46,7 +53,7 @@ class Database(private val plugin: Main) {
                     try {
                         dbFile.createNewFile()
                     } catch (e: IOException) {
-                        Debug.log(e.message.toString(), Level.SEVERE)
+                        DebugBukkit.error(e.message.toString())
                     }
                 }
                 configureDataSource("org.sqlite.JDBC", dbFile.absolutePath, true)
@@ -58,7 +65,7 @@ class Database(private val plugin: Main) {
         try {
             if (isConnected()) dataSource?.close()
         } catch (e: Exception) {
-            Debug.log(e.message.toString(), Level.SEVERE)
+            DebugBukkit.error(e.message.toString())
         }
     }
 
@@ -70,33 +77,28 @@ class Database(private val plugin: Main) {
         )
     }
 
-    fun initializeCache() {
-        if (caching) {
-            fetchAllRegionsFromDatabase().forEach { region ->
-                cache[region.name] = region
-            }
-        }
-    }
-
-    fun insertRegion(region: Region): Int {
+    override fun addRegion(name: String, earn: String, needBreak: Int, cooldown: Int): Region? {
         val rowsAffected = executeUpdate(
             """
             INSERT INTO $columnName (region_name, earn, need_break, cooldown) 
             SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM $columnName WHERE region_name = ?)
             """
         ) {
-            it.setString(1, region.name)
-            it.setString(2, region.earn)
-            it.setInt(3, region.needBreak)
-            it.setInt(4, region.cooldown)
-
-            it.setString(5, region.name)
+            it.setString(1, name)
+            it.setString(2, earn)
+            it.setInt(3, needBreak)
+            it.setInt(4, cooldown)
+            it.setString(5, name)
         }
-        if (caching && rowsAffected > 0) cache.put(region.name, region)
-        return rowsAffected
+        val region = IRegion(name, earn, needBreak, cooldown)
+
+        return if(rowsAffected > 0) {
+            if(caching) cache.put(name, region)
+            region
+        } else null
     }
 
-    fun removeRegion(name: String): Int {
+    override fun removeRegion(name: String): Int {
         val rowsAffected = executeUpdate("DELETE FROM $columnName WHERE region_name = ?") {
             it.setString(1, name)
         }
@@ -104,7 +106,7 @@ class Database(private val plugin: Main) {
         return rowsAffected
     }
 
-    fun updateRegion(region: Region): Int {
+    override fun updateRegion(region: Region): Int {
         val rowsAffected = executeUpdate(
             "UPDATE $columnName SET earn = ?, need_break = ?, cooldown = ? WHERE region_name = ?"
         ) {
@@ -117,9 +119,9 @@ class Database(private val plugin: Main) {
         return rowsAffected
     }
 
-    fun hasRegion(name: String): Boolean {
+    override fun hasRegion(name: String): Boolean {
         return if (caching) {
-            cache.containsKey(name) || getRegion(name) != null
+            getRegion(name) != null
         } else {
             executeQuery(
                 "SELECT 1 FROM $columnName WHERE region_name = ?",
@@ -128,16 +130,24 @@ class Database(private val plugin: Main) {
         }
     }
 
-    fun getRegion(name: String): Region? {
+    override fun getRegion(name: String): Region? {
         return if (caching) {
-            cache[name] ?: fetchRegionFromDatabase(name)?.also { cache[name] = it }
+            cache.get(name) ?: fetchRegionFromDatabase(name)?.also { cache.put(name, it) }
         } else {
             fetchRegionFromDatabase(name)
         }
     }
 
-    fun getRegions(): List<Region> {
+    override fun getRegions(): List<Region> {
         return if (caching) cache.values.toList() else fetchAllRegionsFromDatabase()
+    }
+
+    private fun initializeCache() {
+        if (caching) {
+            fetchAllRegionsFromDatabase().forEach { region ->
+                cache[region.name] = region
+            }
+        }
     }
 
     private fun fetchRegionFromDatabase(name: String): Region? {
@@ -145,7 +155,7 @@ class Database(private val plugin: Main) {
             "SELECT * FROM $columnName WHERE region_name = ?",
             { it.setString(1, name) }
         ) { resultSet ->
-            Region(
+            IRegion(
                 name = resultSet.getString("region_name"),
                 earn = resultSet.getString("earn"),
                 needBreak = resultSet.getInt("need_break"),
@@ -156,10 +166,10 @@ class Database(private val plugin: Main) {
 
     private fun fetchAllRegionsFromDatabase(): List<Region> {
         return executeQuery("SELECT * FROM $columnName", mapper = { resultSet ->
-            mutableListOf<Region>().apply {
+            mutableListOf<IRegion>().apply {
                 do {
                     add(
-                        Region(
+                        IRegion(
                             name = resultSet.getString("region_name"),
                             earn = resultSet.getString("earn"),
                             needBreak = resultSet.getInt("need_break"),
@@ -171,15 +181,11 @@ class Database(private val plugin: Main) {
         }) ?: emptyList()
     }
 
-    private fun <T> executeQuery(
-        sql: String,
-        setter: (java.sql.PreparedStatement) -> Unit = {},
-        mapper: (java.sql.ResultSet) -> T?
-    ): T? {
-        dataSource?.connection.use { connection ->
-            connection?.prepareStatement(sql).use { statement ->
+    private fun <T> executeQuery(sql: String, setter: (java.sql.PreparedStatement) -> Unit = {}, mapper: (java.sql.ResultSet) -> T?): T? {
+        dataSource?.connection.useCatching { connection ->
+            connection?.prepareStatement(sql).useCatching { statement ->
                 setter(statement !!)
-                statement.executeQuery().use { resultSet ->
+                statement.executeQuery().useCatching { resultSet ->
                     return if (resultSet.next()) mapper(resultSet) else null
                 }
             }
@@ -188,8 +194,8 @@ class Database(private val plugin: Main) {
     }
 
     private fun executeUpdate(sql: String, setter: (java.sql.PreparedStatement) -> Unit = {}): Int {
-        dataSource?.connection.use { connection ->
-            connection?.prepareStatement(sql).use { statement ->
+        dataSource?.connection.useCatching { connection ->
+            connection?.prepareStatement(sql).useCatching { statement ->
                 setter(statement !!)
                 return statement.executeUpdate()
             }

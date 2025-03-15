@@ -1,26 +1,32 @@
-package ru.kainlight.lightcutter.ANIMATIONS
+package ru.kainlight.lightcutter.animations
 
 import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.type.Leaves
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
 import org.bukkit.entity.FallingBlock
+import org.bukkit.entity.Player
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.util.Transformation
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import ru.kainlight.lightcutter.Main
-import ru.kainlight.lightcutter.UTILS.Debug
 import ru.kainlight.lightlibrary.LightCommon
-import java.util.logging.Level
+import ru.kainlight.lightlibrary.UTILS.DebugBukkit
+import ru.kainlight.lightlibrary.multiMessage
 import kotlin.math.abs
+import kotlin.random.Random
 
 // Thanks max1mde — https://github.com/max1mde/FancyPhysics
 
-class TreeAnimation(private val plugin: Main, private val origin: Block) {
+internal class TreeAnimation(private val plugin: Main, private val origin: Block) {
 
     private val lower_1_19_4: Boolean = LightCommon.lower(plugin.server.version, "1.19.3")
 
@@ -38,6 +44,10 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
 
     private val scannedBlocks: MutableList<Block> = mutableListOf()
     private val oldBlocklist: MutableMap<Location, BlockData> = mutableMapOf()
+
+    private val advancedStemScanMaterials = listOf(Material.COCOA_BEANS, Material.VINE, Material.SNOW)
+    private val blockFaceList =
+        listOf(BlockFace.DOWN, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.WEST, BlockFace.EAST)
 
     init {
         val aboveOrigin: Block = origin.location.clone().add(0.0, 1.0, 0.0).block
@@ -57,29 +67,20 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
         /** Creates a new Tree object and plays a break animation */
         fun start(plugin: Main, event: BlockBreakEvent) {
             if (event.isCancelled) return
-
             val block = event.block
             if (! block.getRelative(BlockFace.UP).type.isWood()) return
-
             val tree = TreeAnimation(plugin, block)
+            val player = event.player
 
-            event.player.apply {
-                if (tree.woods.isNotEmpty()) incrementStatistic(Statistic.MINE_BLOCK,
-                                                                tree.woodMaterial,
-                                                                tree.woods.size)
-                if (tree.leaves.isNotEmpty()) incrementStatistic(Statistic.MINE_BLOCK,
-                                                                 tree.leaveMaterial,
-                                                                 tree.leaves.size)
-            }
+            val isIncrementStatistics = plugin.config.getBoolean("woodcutter-settings.increment-statistics", true)
+            if (isIncrementStatistics) tree.incrementStatistics(player)
 
             tree.breakAndFall()
 
             val regenerationEnabled = plugin.config.getBoolean("region-settings.regeneration.enable", true)
-            val delayBeforeRestore: Int? = plugin.config.getInt("region-settings.regeneration.delay")
+            val delayBeforeRestore: Int? = plugin.config.getInt("region-settings.regeneration.delay", 5)
             if (regenerationEnabled && delayBeforeRestore != null && delayBeforeRestore > 0) {
-                val animationEnabled = plugin.config.getBoolean("region-settings.regeneration.animation.enable", false)
-
-                if (animationEnabled) tree.restoreAnimated(delayBeforeRestore) else tree.restore(delayBeforeRestore)
+                tree.startAnimation(delayBeforeRestore)
             }
         }
 
@@ -89,55 +90,46 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
     /** Breaks the tree with a falling animation if the tree is natural. */
     private fun breakAndFall() {
         if (! isNatural) return
-        val allowDrop: Boolean = plugin.config.getBoolean("woodcutter-settings.allow-drop", true)
         val isAnimated: Boolean = plugin.config.getBoolean("woodcutter-settings.animation", false)
+        DebugBukkit.info("Animation is [$isAnimated]")
 
-        Debug.log("Animation is [$isAnimated]")
-
-        if (! isAnimated) this.treeCapitator(allowDrop)
-        else {
+        if (! isAnimated) this.treeCapitator() else {
             if (lower_1_19_4) {
-                Debug.log("Animation «spawnFallingBlocks» started")
-                this.woods.forEach { spawnFallingBlocks(it, allowDrop) }
-                this.leaves.forEach { spawnFallingBlocks(it, allowDrop) }
+                DebugBukkit.info("Animation «spawnFallingBlocks» started")
+                this.woods.forEach { spawnFallingBlocks(it) }
+                this.leaves.forEach { spawnFallingBlocks(it) }
             } else {
-                Debug.log("Animation «spawnDisplay» started")
-                this.woods.forEach { spawnDisplay(it, allowDrop) }
-                this.leaves.forEach { spawnDisplay(it, allowDrop) }
+                DebugBukkit.info("Animation «spawnDisplay» started")
+                this.woods.forEach { spawnDisplay(it) }
+                this.leaves.forEach { spawnDisplay(it) }
             }
         }
     }
 
-    @Suppress("DEPRECATED")
-    private fun spawnFallingBlocks(block: Block, allowDrop: Boolean) {
+    @Deprecated("Removed after switching to JDK21")
+    @ScheduledForRemoval
+    private fun spawnFallingBlocks(block: Block) {
         val fallingBlock = block.world.spawnFallingBlock(block.location, block.blockData)
 
         fallingBlock.setHurtEntities(false)
         fallingBlock.dropItem = false
         fallingBlock.isInvulnerable = true
 
-        if (allowDrop) block.breakNaturally()
-        else block.type = Material.AIR
+        drop(block)
         fallingBlocks.add(fallingBlock)
     }
 
     /** Breaks the tree instantly without any animation if the tree is natural. */
-    private fun treeCapitator(allowDrop: Boolean) {
-        this.woods.forEach {
-            if (allowDrop) it.breakNaturally()
-            else it.type = Material.AIR
-        }
-        this.leaves.forEach {
-            if (allowDrop) it.breakNaturally()
-            else it.type = Material.AIR
-        }
+    private fun treeCapitator() {
+        this.woods.forEach { drop(it) }
+        this.leaves.forEach { drop(it) }
     }
 
-    private fun spawnDisplay(block: Block, allowDrop: Boolean) {
+    private fun spawnDisplay(block: Block) {
         val location = block.location
         val blockDisplay: Any = location.world.spawn(location, BlockDisplay::class.java)
 
-        if(blockDisplay is BlockDisplay) {
+        if (blockDisplay is BlockDisplay) {
             displayList.add(blockDisplay)
             val blockData = block.type.createBlockData()
 
@@ -153,11 +145,12 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
             val transformationZ = (baseY - block.y + (baseY - block.y) / 0.9).toFloat()
 
             /** Transform display (Falling animation) */
-            plugin.scheduleSyncDelayedTask(Runnable {
-                val yPlus = (baseY - (block.y + 0.7)).toFloat()
-                val loc = blockDisplay.location.add(0.0, yPlus + 1.5, (transformationY - 0.5f).toDouble())
+            plugin.lightScheduler.scheduleSyncDelayedTask(2L) {
+                val newY = (baseY - (block.y + 0.7)).toFloat()
+                val blockDisplayLocation =
+                    blockDisplay.location.add(0.0, newY + 1.5, (transformationY - 0.5f).toDouble())
 
-                var impactLocation = loc.block
+                var impactLocation = blockDisplayLocation.block
                 if (impactLocation.type.isSolid) {
                     var tries = 0
                     while (impactLocation.type.isSolid && tries < 5) {
@@ -166,8 +159,13 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
                     }
                 }
 
-                val translation = Vector3f(0f, transformationY + (baseY - (block.y + 0.6)).toFloat() / 2, transformationZ)
-                val leftRotation = Quaternionf(- 1.0f + loc.distance(impactLocation.location).toFloat() / 10, 0f, 0f, 0.1f)
+                val translation =
+                    Vector3f(0f, transformationY + (baseY - (block.y + 0.6)).toFloat() / 2, transformationZ)
+                val leftRotation =
+                    Quaternionf(- 1.0f + blockDisplayLocation.distance(impactLocation.location).toFloat() / 10,
+                                0f,
+                                0f,
+                                0.1f)
                 val scale = Vector3f(1f, 1f, 1f)
                 val rightRotation = blockDisplay.transformation.rightRotation
 
@@ -177,18 +175,19 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
                 blockDisplay.transformation = transformation
 
                 /** Break tree */
-                val finalImpactLocation = impactLocation
-                val dist = (loc.distance(impactLocation.location) * 2).toInt()
+                val finalImpactLocation = impactLocation.location
+                val dist = (blockDisplayLocation.distance(impactLocation.location) * 2).toInt()
 
-                plugin.scheduleSyncDelayedTask(Runnable {
-                    blockDisplay.location.world.spawnParticle(Particle.BLOCK_CRACK,
-                                                              finalImpactLocation.location,
-                                                              50,
-                                                              blockData)
-                    removeTree(blockDisplay, transformationY.toFloat(), blockData, allowDrop)
-                }, 12L - minOf(11, dist).toLong())
-
-            }, 2L)
+                val delayForTask = 12L - minOf(11, dist).toLong()
+                plugin.lightScheduler.scheduleSyncDelayedTask(delayForTask) {
+                    blockDisplay.location.world.spawnParticle(
+                        Particle.BLOCK_CRACK,
+                        finalImpactLocation,
+                        50,
+                        blockData)
+                    removeTree(blockDisplay, transformationY.toFloat(), blockData)
+                }
+            }
         }
     }
 
@@ -199,68 +198,60 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
      * @param transformationY  The Y transformation value.
      * @param blockData        The block data of the block display to get the material.
      */
-    private fun removeTree(blockDisplay: BlockDisplay, transformationY: Float, blockData: BlockData, allowDrop: Boolean) {
-        plugin.scheduleSyncDelayedTask(Runnable {
-            val block = blockDisplay.location.add(0.0, (transformationY + 2).toDouble(), transformationY.toDouble()).block
+    private fun removeTree(blockDisplay: BlockDisplay, transformationY: Float, blockData: BlockData) {
+        plugin.lightScheduler.scheduleSyncDelayedTask(4L) {
+            val block =
+                blockDisplay.location.add(0.0, (transformationY + 2).toDouble(), transformationY.toDouble()).block
             if (block.type == Material.AIR) {
                 block.type = blockData.material
-
-                if (allowDrop) block.breakNaturally()
-                else block.type = Material.AIR
+                drop(block)
             }
 
             displayList.remove(blockDisplay)
             blockDisplay.remove()
-        }, 4L)
+        }
     }
 
-    private fun restore(delayBeforeRestore: Int) {
-        val particlesEnabled: Boolean = plugin.config.getBoolean("region-settings.regeneration.particle.enable", false)
-        val particleArgs: List<String> = plugin.config.getStringList("region-settings.regeneration.particle.types").random().split(":")
-
-        val particleName: String = particleArgs.getOrNull(0) ?: "DOLPHIN"
-        val particleCount: Int = particleArgs.getOrNull(1)?.toIntOrNull() ?: plugin.config.getInt("region-settings.regeneration.particle.default-count", 1)
-
-        val soundEnabled = plugin.config.getBoolean("region-settings.regeneration.sound.enable", false)
-        val soundArgs = plugin.config.getStringList("region-settings.regeneration.sound.types").random().split(":")
-
-        val soundName: String = soundArgs.getOrNull(0) ?: "BLOCK_WOOD_PLACE"
-        val soundVolume: Float = soundArgs.getOrNull(1)?.toFloatOrNull() ?: plugin.config.getDouble("region-settings.regeneration.sound.default-volume", 1.0).toFloat()
-        val soundPitch: Float = soundArgs.getOrNull(2)?.toFloatOrNull() ?: plugin.config.getDouble("region-settings.regeneration.sound.default-pitch", 0.8).toFloat()
-
-        plugin.runTaskLater(Runnable {
+    private fun restore(
+        particlesEnabled: Boolean,
+        particleName: String,
+        particleCount: Int,
+        soundEnabled: Boolean,
+        soundName: String,
+        soundVolume: Float,
+        soundPitch: Float,
+        delayBeforeRestore: Int
+    ) {
+        plugin.lightScheduler.runTaskLater(20L * delayBeforeRestore) {
             for (location in oldBlocklist.keys) {
-                handleRestoreBlocks(location)
+                location.handleRestoreBlocks()
                 if (particlesEnabled) location.particle(particleName, particleCount)
             }
 
-            val effectLocation = origin.location
-            if (soundEnabled) effectLocation.sound(soundName, soundVolume, soundPitch)
+            if (soundEnabled) origin.location.sound(soundName, soundVolume, soundPitch)
 
             origin.type = woodMaterial
-        }, 20L * delayBeforeRestore)
+        }
     }
 
-    private fun restoreAnimated(delayBeforeRestore: Int) {
-        val particlesEnabled: Boolean = plugin.config.getBoolean("region-settings.regeneration.particle.enable", false)
-        val particleArgs: List<String> = plugin.config.getStringList("region-settings.regeneration.particle.types").random().split(":")
-
-        val particleName: String = particleArgs.getOrNull(0) ?: "DOLPHIN"
-        val particleCount: Int = particleArgs.getOrNull(1)?.toIntOrNull() ?: plugin.config.getInt("region-settings.regeneration.particle.default-count", 1)
-
-        val soundEnabled = plugin.config.getBoolean("region-settings.regeneration.sound.enable", false)
-        val soundArgs = plugin.config.getStringList("region-settings.regeneration.sound.types").random().split(":")
-
-        val soundName: String = soundArgs.getOrNull(0) ?: "BLOCK_WOOD_PLACE"
-        val soundVolume: Float = soundArgs.getOrNull(1)?.toFloatOrNull() ?: plugin.config.getDouble("region-settings.regeneration.sound.default-volume", 1.0).toFloat()
-        val soundPitch: Float = soundArgs.getOrNull(2)?.toFloatOrNull() ?: plugin.config.getDouble("region-settings.regeneration.sound.default-pitch", 0.7).toFloat()
-
+    private fun restoreAnimated(
+        particlesEnabled: Boolean,
+        particleName: String,
+        particleCount: Int,
+        soundEnabled: Boolean,
+        soundName: String,
+        soundVolume: Float,
+        soundPitch: Float,
+        delayBeforeRestore: Int
+    ) {
         var delayPerBlock: Long = plugin.config.getLong("region-settings.regeneration.animation.delayPerBlock", 1L)
         if (delayPerBlock <= 0) delayPerBlock = 1L
         var currentDelay = 0L
 
+        val sch = plugin.lightScheduler
+
         // Ожидание перед запуском восстановления
-        plugin.runTaskLaterAsynchronously(Runnable {
+        sch.runTaskLaterAsynchronously(20L * delayBeforeRestore) {
             // Разделение блоков дерева и листвы
             val leafBlocks =
                 oldBlocklist.filterValues { it.material == leaveMaterial }.keys.sortedByDescending { loc -> loc.y }
@@ -269,29 +260,29 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
 
             // Восстанавливаем блоки листвы
             for (location in leafBlocks) {
-                plugin.runTaskLater(Runnable {
-                    handleRestoreBlocks(location)
+                sch.runTaskLater(currentDelay) {
+                    location.handleRestoreBlocks()
 
                     if (particlesEnabled) location.particle(particleName, particleCount)
                     if (soundEnabled) location.sound(soundName, soundVolume, soundPitch)
-                }, currentDelay)
+                }
                 currentDelay += delayPerBlock
             }
 
             // Восстанавливаем блоки дерева
             for (location in woodBlocks) {
-                plugin.runTaskLater(Runnable {
-                    handleRestoreBlocks(location)
+                sch.runTaskLater(currentDelay) {
+                    location.handleRestoreBlocks()
 
                     if (particlesEnabled) location.particle(particleName, particleCount)
                     if (soundEnabled) location.sound(soundName, soundVolume, soundPitch)
-                }, currentDelay)
+                }
                 currentDelay += delayPerBlock
             }
 
             // Завершающий блок (если есть `origin`)
-            plugin.runTaskLater(Runnable { origin.type = woodMaterial }, currentDelay)
-        }, 20L * delayBeforeRestore)
+            sch.runTaskLater(currentDelay) { origin.type = woodMaterial }
+        }
     }
 
     /** Recursively scans the tree structure, populating the stem and leaves lists. */
@@ -337,18 +328,11 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
         val maxInvalidScans = 2700
         val maxInvalidBlockDistance = 2
 
-        if (listOf(Material.COCOA_BEANS,
-                   Material.VINE,
-                   Material.SNOW).contains(scannedBlock.type) && advancedStemScan) {
+        if (advancedStemScanMaterials.contains(scannedBlock.type) && advancedStemScan) {
             scannedBlock.breakNaturally()
         }
 
-        listOf(BlockFace.DOWN,
-               BlockFace.UP,
-               BlockFace.SOUTH,
-               BlockFace.NORTH,
-               BlockFace.WEST,
-               BlockFace.EAST).forEach { blockFace ->
+        blockFaceList.forEach { blockFace ->
             val currentBlock = scannedBlock.getRelative(blockFace)
 
             var scan = (currentBlock.type == this.woodMaterial || currentBlock.type == this.leaveMaterial)
@@ -375,34 +359,118 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
         }
     }
 
+    private fun drop(block: Block) {
+        val drops = plugin.config.getConfigurationSection("woodcutter-settings.drops") !!
+        if (block.type.isWood()) {
+            if (drops.getBoolean("logs")) block.breakNaturally()
+            else block.type = Material.AIR
+        }
+        if (block.type.isLeave()) {
+            if (drops.getBoolean("leaves")) block.breakNaturally()
+            else block.type = Material.AIR
+        }
+    }
+
+    private fun isDroppableLogs(): Boolean {
+        val drops = plugin.config.getConfigurationSection("woodcutter-settings.drops") !!
+        return drops.getBoolean("logs")
+    }
+
+    private fun isDroppableLeaves(): Boolean {
+        val drops = plugin.config.getConfigurationSection("woodcutter-settings.drops") !!
+        return drops.getBoolean("leaves")
+    }
+
+    private fun incrementStatistics(player: Player) {
+        if (this.woods.isNotEmpty() && this.isDroppableLogs()) {
+            val woodSize = this.getLogsSize()
+            if (woodSize > 1) {
+                player.incrementStatistic(Statistic.MINE_BLOCK, this.woodMaterial, woodSize)
+            }
+        }
+
+        if (this.leaves.isNotEmpty() && this.isDroppableLeaves()) {
+            val leavesSize = this.getLeavesSize()
+            if (leavesSize > 1) {
+                player.incrementStatistic(Statistic.MINE_BLOCK, this.leaveMaterial, leavesSize)
+            }
+        }
+    }
+
+    private fun startAnimation(delayBeforeRestore: Int) {
+        val animationEnabled = plugin.config.getBoolean("region-settings.regeneration.animation.enable", false)
+
+        val particlesEnabled: Boolean = plugin.config.getBoolean("region-settings.regeneration.particle.enable", false)
+        val particleArgs: List<String> =
+            plugin.config.getStringList("region-settings.regeneration.particle.types").random().split(":")
+
+        val particleName: String = particleArgs.getOrNull(0) ?: "DOLPHIN"
+        val particleCount: Int = particleArgs.getOrNull(1)?.toIntOrNull()
+            ?: plugin.config.getInt("region-settings.regeneration.particle.default-count", 1)
+
+        val soundEnabled = plugin.config.getBoolean("region-settings.regeneration.sound.enable", false)
+        val soundArgs = plugin.config.getStringList("region-settings.regeneration.sound.types").random().split(":")
+
+        val soundName = soundArgs.getOrNull(0) ?: "BLOCK_WOOD_PLACE"
+        val soundVolume: Float = soundArgs.getOrNull(1)?.toFloatOrNull()
+            ?: plugin.config.getDouble("region-settings.regeneration.sound.default-volume", 1.0).toFloat()
+        val soundPitch: Float = soundArgs.getOrNull(2)?.toFloatOrNull()
+            ?: plugin.config.getDouble("region-settings.regeneration.sound.default-pitch", 0.8).toFloat()
+
+        if (animationEnabled) {
+            restoreAnimated(particlesEnabled,
+                            particleName,
+                            particleCount,
+                            soundEnabled,
+                            soundName,
+                            soundVolume,
+                            soundPitch,
+                            delayBeforeRestore)
+        } else {
+            restore(particlesEnabled,
+                    particleName,
+                    particleCount,
+                    soundEnabled,
+                    soundName,
+                    soundVolume,
+                    soundPitch,
+                    delayBeforeRestore)
+        }
+    }
+
     /**
      * Восстанавливает блок с эффектами.
      */
-    private fun handleRestoreBlocks(location: Location) {
-        val block = location.block
+    private fun Location.handleRestoreBlocks() {
+        val block = this.block
         val blockType = block.type
         if (blockType != Material.AIR) return
-        block.blockData = oldBlocklist.get(location)!!
+        block.blockData = oldBlocklist.get(this) !!
 
-        Debug.log("Restored ${blockType.name} at $location location")
+        DebugBukkit.info("Restored ${blockType.name} at $this location")
     }
 
     private fun Location.particle(name: String?, count: Int?) {
-        if(name == null || count == null) return
+        if (name == null || count == null) return
 
         try {
-            this.world.spawnParticle(Particle.valueOf(name), this.add(0.5, 0.5, 0.5), count)
-            Debug.log("Spawned $name particle with count $count")
+            val particle = Particle.valueOf(name)
+            val changedLocation = this.add(0.5, 0.5, 0.5)
+
+            this.world.spawnParticle(particle, changedLocation, count)
+            DebugBukkit.info("Spawned $name particle with count $count")
         } catch (e: IllegalArgumentException) {
-            Debug.log("An attempt to spawn an unsupported particle $name at $this: ${e.message}", Level.SEVERE)
+            DebugBukkit.error("An attempt to spawn an unsupported particle $name at $this", e)
         }
     }
 
     private fun Location.sound(soundName: String?, volume: Float?, pitch: Float?) {
-        if(soundName == null || volume == null || pitch == null) return
+        if (soundName == null || volume == null || pitch == null) return
+        val name = soundName.uppercase()
 
-        this.world.playSound(this, Sound.valueOf(soundName), volume, pitch)
-        Debug.log("Played $soundName sound with volume $volume and pitch $pitch")
+        this.world.playSound(this, Sound.valueOf(name), volume, pitch)
+
+        DebugBukkit.info("Played ${name.uppercase()} sound with volume $volume and pitch $pitch")
     }
 
     private fun getLeaveType(material: Material): Material {
@@ -420,6 +488,10 @@ class TreeAnimation(private val plugin: Main, private val origin: Block) {
             else -> Material.AIR
         }
     }
+
+    private fun getLogsSize() = this.woods.size - 1
+    private fun getLeavesSize() = this.leaves.size
 }
 
 fun Material.isWood(): Boolean = this.name.endsWith("LOG") || this.name.endsWith("STEM")
+fun Material.isLeave(): Boolean = this.name.endsWith("LEAVES")

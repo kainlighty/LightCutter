@@ -1,35 +1,41 @@
-package ru.kainlight.lightcutter.COMMANDS
+package ru.kainlight.lightcutter.commands
 
 import net.kyori.adventure.text.event.ClickEvent
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import ru.kainlight.lightcutter.DATA.Region
 import ru.kainlight.lightcutter.Main
-import ru.kainlight.lightcutter.getAudience
+import ru.kainlight.lightcutter.api.IRegion
+import ru.kainlight.lightcutter.api.LightCutterAPI
+import ru.kainlight.lightcutter.api.Region
 import ru.kainlight.lightlibrary.API.WorldGuardAPI
 import ru.kainlight.lightlibrary.equalsIgnoreCase
+import ru.kainlight.lightlibrary.getAudience
 import ru.kainlight.lightlibrary.multiMessage
 import kotlin.text.replace
 
 @Suppress("WARNINGS")
-class MainCommand(private val plugin: Main) : CommandExecutor {
+internal class MainCommand(private val plugin: Main) : CommandExecutor {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
+        val senderAudience = sender.getAudience()
+
         if (args.isEmpty() && command.name.equalsIgnoreCase("lightcutter")) {
             sender.hasNoPermissionAndMessage("lightcutter.help")
-            plugin.getMessagesConfig().getStringList("help.commands").forEach { sender.getAudience().multiMessage(it) }
+            plugin.getMessages().getStringList("help.commands").forEach { senderAudience.multiMessage(it) }
             return true
         }
+
+        val regionHandler = LightCutterAPI.getProvider().regionHandler
 
         when (args[0].lowercase()) {
             "add" -> {
                 if (sender.hasNoPermissionAndMessage("lightcutter.add")) return true
 
                 if (args.size <= 4) {
-                    plugin.getMessagesConfig().getString("help.add").let {
-                        sender.getAudience().multiMessage(it)
+                    plugin.getMessages().getString("help.add").let {
+                        senderAudience.multiMessage(it)
                     }
                     return true
                 }
@@ -38,7 +44,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
 
                 if(sender is Player) {
                     if(!WorldGuardAPI.hasRegion(sender.world, regionName)) {
-                        plugin.getMessagesConfig().getString("region.not-exists")?.let {
+                        plugin.getMessages().getString("region.not-exists")?.let {
                             sender.messageWithReplacedRegion(it, regionName)
                         }
                         return true
@@ -49,14 +55,14 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 val needBreak = args[3].toInt()
                 val cooldown = args[4].toInt()
 
-                val newRegion = Region(regionName, earn, needBreak, cooldown)
-                if (plugin.database.insertRegion(newRegion) > 0) {
-                    plugin.getMessagesConfig().getString("region.added")?.let {
+                val newRegion = regionHandler.addRegion(regionName, earn, needBreak, cooldown)
+                if (newRegion != null) {
+                    plugin.getMessages().getString("region.added")?.let {
                         sender.messageWithReplacedAll(it, newRegion)
                     }
                     return true
                 } else {
-                    plugin.getMessagesConfig().getString("region.exists")?.let {
+                    plugin.getMessages().getString("region.exists")?.let {
                         sender.messageWithReplacedRegion(it, regionName)
                     }
                     return true
@@ -67,8 +73,8 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 if (sender.hasNoPermissionAndMessage("lightcutter.update")) return true
 
                 if (args.size <= 4) {
-                    plugin.getMessagesConfig().getString("help.update").let {
-                        sender.getAudience().multiMessage(it)
+                    plugin.getMessages().getString("help.update").let {
+                        senderAudience.multiMessage(it)
                     }
                     return true
                 }
@@ -78,14 +84,14 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 val needBreak = args[3].toInt()
                 val cooldown = args[4].toInt()
 
-                val newRegion = Region(regionName, earn, needBreak, cooldown)
-                if (/*plugin.database.hasRegion(regionName) &&*/ plugin.database.updateRegion(newRegion) > 0) {
-                    plugin.getMessagesConfig().getString("region.updated")?.let {
-                        sender.messageWithReplacedAll(it, newRegion)
+                val newIRegion = IRegion(regionName, earn, needBreak, cooldown)
+                if (regionHandler.updateRegion(newIRegion) > 0) {
+                    plugin.getMessages().getString("region.updated")?.let {
+                        sender.messageWithReplacedAll(it, newIRegion)
                     }
                     return true
                 } else {
-                    plugin.getMessagesConfig().getString("region.not-exists")?.let {
+                    plugin.getMessages().getString("region.not-exists")?.let {
                         sender.messageWithReplacedRegion(it, regionName)
                     }
                     return true
@@ -96,19 +102,19 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 if (sender.hasNoPermissionAndMessage("lightcutter.remove")) return true
 
                 if (args.size == 1) {
-                    plugin.getMessagesConfig().getString("help.remove").let {
-                        sender.getAudience().multiMessage(it)
+                    plugin.getMessages().getString("help.remove").let {
+                        senderAudience.multiMessage(it)
                     }
                     return true
                 }
 
                 val regionName = args[1]
-                if(plugin.database.removeRegion(regionName) > 0) {
-                    plugin.getMessagesConfig().getString("region.removed")?.let {
+                if(regionHandler.removeRegion(regionName) > 0) {
+                    plugin.getMessages().getString("region.removed")?.let {
                         sender.messageWithReplacedRegion(it, regionName)
                     }
                 } else {
-                    plugin.getMessagesConfig().getString("region.not-exists")?.let {
+                    plugin.getMessages().getString("region.not-exists")?.let {
                         sender.messageWithReplacedRegion(it, regionName)
                     }
                 }
@@ -118,19 +124,19 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 if (sender.hasNoPermissionAndMessage("lightcutter.info")) return true
 
                 if (args.size == 1) {
-                    plugin.getMessagesConfig().getString("help.info").let {
-                        sender.getAudience().multiMessage(it)
+                    plugin.getMessages().getString("help.info").let {
+                        senderAudience.multiMessage(it)
                     }
                     return true
                 }
 
                 val regionName = args[1]
-                val region = plugin.database.getRegion(regionName)
+                val region = regionHandler.getRegion(regionName)
                 if (region != null) {
-                    sender.getAudience().multiMessage(region.getInfo())
+                    senderAudience.multiMessage(region.getInfo())
                     return true
                 } else {
-                    plugin.getMessagesConfig().getString("region.not-exists")?.let {
+                    plugin.getMessages().getString("region.not-exists")?.let {
                         sender.messageWithReplacedRegion(it, regionName)
                     }
                     return true
@@ -140,15 +146,15 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
             "list" -> {
                 if (sender.hasNoPermissionAndMessage("lightcutter.list")) return true
 
-                val separator = plugin.getMessagesConfig().getString("list.separator") ?: "|"
-                val header = plugin.getMessagesConfig().getString("list.header")
+                val separator = plugin.getMessages().getString("list.separator") ?: "|"
+                val header = plugin.getMessages().getString("list.header")
                     ?: "<white>Name #separator# Earn #separator# Need break #separator# Cooldown<reset>"
 
                 val builder: StringBuilder = StringBuilder()
                     .appendLine()
                     .append(header.replace("#separator#", separator))
                     .appendLine()
-                plugin.database.getRegions().forEach {
+                regionHandler.getRegions().forEach {
                     builder.append(it.name).append(" ").append(separator).append(" ")
                         .append(it.earn).append(" ").append(separator).append(" ")
                         .append(it.needBreak).append(" ").append(separator).append(" ")
@@ -157,7 +163,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 }
 
                 val msg = builder.toString()
-                sender.getAudience().multiMessage(msg)
+                senderAudience.multiMessage(msg)
                 return true
             }
 
@@ -170,9 +176,8 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
                 }
 
                 plugin.reloadConfigurations()
-
-                plugin.getMessagesConfig().getString("reload-config").let {
-                    sender.getAudience().multiMessage(it)
+                plugin.getMessages().getString("reload-config").let {
+                    senderAudience.multiMessage(it)
                 }
                 return true
             }
@@ -182,7 +187,7 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
 
     private fun CommandSender.hasNoPermissionAndMessage(permission: String): Boolean {
         if (!this.hasPermission(permission)) {
-            plugin.getMessagesConfig().getString("warnings.no-permissions")?.let {
+            plugin.getMessages().getString("warnings.no-permissions")?.let {
                 this.getAudience().multiMessage(it.replace("#permission#", permission))
             }
             return true
@@ -196,9 +201,9 @@ class MainCommand(private val plugin: Main) : CommandExecutor {
     private fun CommandSender.messageWithReplacedAll(it: String, region: Region) {
         val regionName = region.name
         this.getAudience().multiMessage(message = it.replace("#region#", regionName),
-                                          hover = region.getInfo(),
-                                          event = ClickEvent.Action.RUN_COMMAND,
-                                          "/lightcutter info $regionName")
+                                        hover = region.getInfo(),
+                                        event = ClickEvent.Action.RUN_COMMAND,
+                                        action = "/lightcutter info $regionName")
     }
 
 }

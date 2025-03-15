@@ -1,28 +1,28 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.jetbrains.kotlin.ir.backend.js.compile
 
 plugins {
     id("java")
-    kotlin("jvm") version "2.0.20"
+    kotlin("jvm") version "2.1.10"
 
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
     id("com.gradleup.shadow").version("9.0.0-beta4")
 }
 
 group = "ru.kainlight.lightcutter"
-version = "1.3.2"
+version = "1.3.3"
 
-val kotlinVersion = "2.0.20"
-val adventureVersion = "4.18.0"
+val kotlinVersion = "2.1.10"
+val adventureVersion = "4.19.0"
 val adventureBukkitVersion = "4.3.4"
 val hikariCPVersion = "6.2.1"
-val mysqlConnectorVersion = "9.1.0"
+val mysqlConnectorVersion = "9.2.0"
 
 repositories {
     mavenCentral()
 
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://jitpack.io/")
+    maven("https://maven.enginehub.org/repo/")
 }
 
 dependencies {
@@ -35,58 +35,61 @@ dependencies {
     compileOnly("net.kyori:adventure-platform-bukkit:$adventureBukkitVersion")
     compileOnly("com.zaxxer:HikariCP:$hikariCPVersion")
 
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.9")
+
     compileOnly("com.mysql:mysql-connector-j:$mysqlConnectorVersion")
 
+    implementation(project(":API"))
     implementation(files(
         "C:/Users/danny/IdeaProjects/.Kotlin/.private/LightLibrary/bukkit/build/libs/LightLibraryBukkit-PUBLIC-1.0.jar"
     ))
 }
 
+val javaVersion = 17
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersion))
 }
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(javaVersion)
 }
 
 tasks {
     processResources {
+        val libraries = listOf(
+            "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}",
+            "com.zaxxer:HikariCP:${hikariCPVersion}",
+            "net.kyori:adventure-text-minimessage:${adventureVersion}",
+            "net.kyori:adventure-platform-bukkit:${adventureBukkitVersion}",
+            "net.kyori:adventure-text-minimessage:${adventureVersion}",
+            "com.mysql:mysql-connector-j:${mysqlConnectorVersion}"
+        )
+        val props = mapOf(
+            "pluginVersion" to version,
+            "description" to description,
+            "kotlinVersion" to kotlinVersion,
+            "adventureVersion" to adventureVersion,
+            "adventureBukkitVersion" to adventureBukkitVersion,
+            "libraries" to libraries
+        )
+        inputs.properties(props)
+        filteringCharset = "UTF-8"
         filesMatching("plugin.yml") {
-            expand(
-                mapOf(
-                    "pluginVersion" to version,
-                    "kotlinVersion" to kotlinVersion,
-                    "adventureVersion" to adventureVersion,
-                    "adventureBukkitVersion" to adventureBukkitVersion,
-                    "hikariCPVersion" to hikariCPVersion,
-                    "mysqlVersion" to mysqlConnectorVersion
-                )
-            )
+            expand(props)
         }
     }
 
-    // Настройка для задачи сборки Shadow JAR
     named<ShadowJar>("shadowJar") {
-        // Настройки для Shadow JAR
         archiveBaseName.set(project.name)
         archiveFileName.set("${project.name}-${project.version}.jar")
 
-        // Исключения и переименование пакетов
         exclude("META-INF/maven/**",
                 "META-INF/INFO_BIN",
-                "META-INF/INFO_SRC"
+                "META-INF/INFO_SRC",
+                "kotlin/**"
         )
-
-        //exclude("META-INF/maven/**",
-        //        "META-INF/INFO_BIN",
-        //        "META-INF/INFO_SRC",
-        //        "kotlin/**",
-        //        "org/jetbrains/kotlin/**",
-        //        "net/kyori/**")
-
         mergeServiceFiles()
 
-        val shadedPath = "ru.kainlight.lightcutter.shaded"
+        val shadedPath = "ru.kainlight.${project.name.lowercase()}.shaded"
         relocate("ru.kainlight.lightlibrary", "$shadedPath.lightlibrary")
         relocate("org.mariadb.jdbc", "$shadedPath.database")
     }

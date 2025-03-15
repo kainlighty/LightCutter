@@ -8,13 +8,7 @@ loadbefore: [ WorldGuard ]
 authors: [ kainlight ]
 website: https://github.com/kainlighty
 
-libraries:
-  - org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}
-  - com.zaxxer:HikariCP:${hikariCPVersion}
-  - net.kyori:adventure-api:${adventureVersion}
-  - net.kyori:adventure-text-minimessage:${adventureVersion}
-  - net.kyori:adventure-platform-bukkit:${adventureBukkitVersion}
-  - com.mysql:mysql-connector-j:${mysqlVersion}
+libraries: ${libraries}
 
 commands:
   lightcutter:
