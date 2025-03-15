@@ -39,7 +39,7 @@ dependencies {
 
     compileOnly("com.mysql:mysql-connector-j:$mysqlConnectorVersion")
 
-    implementation(project(":API"))
+    implementation(project(":api"))
     implementation(files(
         "C:/Users/danny/IdeaProjects/.Kotlin/.private/LightLibrary/bukkit/build/libs/LightLibraryBukkit-PUBLIC-1.0.jar"
     ))
