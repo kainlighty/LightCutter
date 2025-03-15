@@ -72,6 +72,9 @@ internal class TreeAnimation(private val plugin: Main, private val origin: Block
             val tree = TreeAnimation(plugin, block)
             val player = event.player
 
+            val isFullItemDamage = plugin.config.getBoolean("woodcutter-settings.full-item-damage", true)
+            tree.damageItem(player.inventory.itemInMainHand, isFullItemDamage)
+
             val isIncrementStatistics = plugin.config.getBoolean("woodcutter-settings.increment-statistics", true)
             if (isIncrementStatistics) tree.incrementStatistics(player)
 
@@ -379,6 +382,30 @@ internal class TreeAnimation(private val plugin: Main, private val origin: Block
     private fun isDroppableLeaves(): Boolean {
         val drops = plugin.config.getConfigurationSection("woodcutter-settings.drops") !!
         return drops.getBoolean("leaves")
+    }
+
+    private fun damageItem(mainHand: ItemStack, full: Boolean = false) {
+        val itemMeta = mainHand.itemMeta
+        if (itemMeta !is Damageable) return
+
+        val baseDamage = if (full) {
+            val logDamage = if (isDroppableLogs()) this.getLogsSize() else 1
+            val leafDamage = if (isDroppableLeaves()) this.getLeavesSize() else 0
+            logDamage + leafDamage
+        } else 1
+        val unbreakingLevel = mainHand.getEnchantmentLevel(Enchantment.DURABILITY)
+        var finalDamage = 0
+        for (i in 0 until baseDamage) {
+            if (unbreakingLevel > 0) {
+                if (Random.nextInt(unbreakingLevel + 1) == 0) {
+                    finalDamage ++
+                }
+            } else {
+                finalDamage ++
+            }
+        }
+        itemMeta.damage += finalDamage
+        mainHand.itemMeta = itemMeta
     }
 
     private fun incrementStatistics(player: Player) {

@@ -39,6 +39,7 @@ woodcutter-settings:
   messages-type: CHAT
   # When breaking a tree, all broken blocks will be counted in the player's stats
   increment-statistics: true
+  full-item-damage: false
   disabled-worlds:
     - world_name
 
